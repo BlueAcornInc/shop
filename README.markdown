@@ -1,4 +1,4 @@
-# Evergreen Storefront
+# Blue Acorn Demo Shop!
 
 This project boilerplate is for Edge Delivery Services projects that integrate with Adobe Commerce.
 
@@ -6,8 +6,8 @@ This project boilerplate is for Edge Delivery Services projects that integrate w
 https://experienceleague.adobe.com/developer/commerce/storefront/
 
 ## Environments
-- Preview: https://main--showcase-evergreen-commerce-storefront--blueacorninc.aem.page
-- Live: https://main--showcase-evergreen-commerce-storefront--blueacorninc.aem.live
+- Preview: https://main--shop--blueacorninc.aem.page/
+- Live: https://main--shop--blueacorninc.aem.live/
 - Commerce (Frontend): http://stage-sandbox.m2cloud.blueacorn.net
 - Commerce (Backend): https://stage-sandbox.m2cloud.blueacorn.net/admin_baici/
 
