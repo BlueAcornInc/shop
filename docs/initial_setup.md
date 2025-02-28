@@ -12,7 +12,7 @@ curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST https://admin.hlx.page
   },
   "content": {
     "source": {
-      "url": "https://drive.google.com/drive/folders/179XQRGrmVxZMR7V_EapUWPa7D-nlrcZU?usp=sharing"
+      "url": "https://drive.google.com/drive/folders/179XQRGrmVxZMR7V_EapUWPa7D-nlrcZU"
     }
   }
 }'
