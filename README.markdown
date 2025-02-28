@@ -13,7 +13,7 @@ https://experienceleague.adobe.com/developer/commerce/storefront/
 
 ## Content (Document-based Authoring)
 
-- [Blue Acorn in Sharepoint](https://groupinfosysus.sharepoint.com/:f:/s/AppBuilderTeam/El9ztRPbAyRCrt3p-H3UX4oB62sM2DNoYx78Q6u7Ws72-A?e=IIniuB)
+- [Evergreen Content Repo (gDrive)](https://drive.google.com/drive/u/0/folders/1ihx3LHl_0MUgfn5NtYIXr2W7DjiaKKMl) will likely introduce an additional one in the future
 
 ## Pre-requisites
 
