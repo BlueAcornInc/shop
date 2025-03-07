@@ -7,7 +7,7 @@
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
 	"postCreateCommand": "npm install",
-	"postAttachCommand": "npm start",
+	"postAttachCommand": "npx aem up $AEM_PARAMS",
 	
 	"forwardPorts": [3000],
 	"customizations": {
@@ -19,6 +19,10 @@
 	},
 	"features": {
 		"ghcr.io/christophermacgown/devcontainer-features/direnv:1": {}
+	},
+
+	"remoteEnv": {
+		"AEM_PARAMS": "--url https://main--shop-stripe--blueacorninc.aem.page"
 	},
 
 	"portsAttributes": {

@@ -1,6 +1,7 @@
 :root {
   --white-font-color: var(--color-neutral-50);
   --invert-dark-to-light: invert(1);
+  --logo-width: 7rem;
 }
 
 header.header-wrapper {
@@ -25,6 +26,10 @@ header.header-wrapper {
 
     .nav-tools {
       background-color: var(--theme-color-1);
+    }
+
+    .section.nav-brand picture img {
+      width: var(--logo-width);
     }
 
     .nav-sections .nav-sections-ul-wrapper>ul>li>a,
@@ -89,15 +94,15 @@ header.header-wrapper {
 footer.footer-wrapper {
   background-color: var(--theme-color-1);
 
-
   .footer.block::before {
     display: none;
   }
 
   .columns.block {
+    box-sizing: border-box;
     max-width: var(--screen-max-width);
     padding: 0 6rem;
-    margin: 8rem 2.9rem;
+    margin: 8rem auto;
 
     >div {
       margin: .8rem 0;
@@ -110,7 +115,7 @@ footer.footer-wrapper {
     }
 
     .columns-img-col picture {
-      width: 12.8rem;
+      width: var(--logo-width);
       display: flex;
       justify-content: flex-start;
       align-items: center;
@@ -216,6 +221,7 @@ footer.footer-wrapper {
   &.content-horizontal-right {
     justify-content: flex-end;
   }
+
   @media (width < 990px) {
     &.content-width-half {
       >div {
@@ -225,10 +231,13 @@ footer.footer-wrapper {
   }
 }
 
-main a.button:any-link, button.button {
+main a.button:any-link,
+button.button {
   background-color: var(--theme-color-3);
   color: var(--color-neutral-50);
 }
-main a.button.secondary, button.button.secondary {
+
+main a.button.secondary,
+button.button.secondary {
   background-color: var(--theme-color-2);
 }

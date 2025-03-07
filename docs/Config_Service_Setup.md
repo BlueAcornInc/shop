@@ -55,7 +55,14 @@ curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST https://admin.hlx.page
 ```bash
 curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST https://admin.hlx.page/config/blueacorninc/sites/shop/folders.json \
   -H 'content-type: application/json' \
-  --data '{ "/products/": "/products/default" }'
+  --data '{
+        "/products/": "/products/default",
+      "/apparel": "/categories/default",
+      "/office": "/categories/default",
+      "/lifestyle": "/categories/default",
+      "/bags": "/categories/default",
+      "/collections": "/categories/default" 
+   }'
 ```
 
 ```bash
@@ -65,4 +72,47 @@ curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST https://admin.hlx.page
 Disallow: /'
 ```
 
- 
+ ```bash
+ curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST "https://admin.hlx.page/code/blueacorninc/shop-summit-stripe/main/*"
+ ```
+
+ ```bash
+ curl -i --header "Cookie: auth_token=$AUTH_TOKEN" https://admin.hlx.page/config/blueacorninc/sites/shop-stripe.json
+ ```
+
+ ```bash
+curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST https://admin.hlx.page/config/blueacorninc/sites/shop-summit-stripe/code.json \
+  -H 'content-type: application/json' \
+  --data '{
+	"owner": "blueacorninc",
+	"repo": "shop-summit"
+}'
+ ```
+
+
+
+  ```bash
+curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST "https://admin.hlx.page/preview/blueacorninc/shop-summit-stripe/main/*" \
+  -H 'content-type: application/json' \
+  --data '{
+    "forceUpdate": true,
+    "paths": [
+    "/"
+    ],
+    "delete": true
+}'
+ ```
+
+
+
+ ```bash
+curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST https://admin.hlx.page/config/blueacorninc/sites/shop-stripe/content.json \
+  -H 'content-type: application/json' \
+  --data '{
+  "contentBusId": "80b0fa5cb76574b2a936c24556eb360aade7eb2aa3a312919cfdbec03d3",
+  "source": {
+    "url": "https://content.da.live/blueacorninc/shop-stripe/",
+    "type": "markup"
+  }
+}'
+ ```
