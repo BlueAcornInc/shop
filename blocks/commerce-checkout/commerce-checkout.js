@@ -189,23 +189,24 @@ async function mountPaymentDropin(mountId) {
       (method) => method.code === 'oope_stripe',
     );
 
-    if (!stripePaymentMethod || !stripePaymentMethod.oope_payment_method_config) {
-      console.error('Stripe payment method configuration is missing.');
-      throw new Error('Stripe payment method is not available.');
-    }
-    // 🔥 Parse the JSON config to get URLs
-    // eslint-disable-next-line max-len
-    const paymentConfig = JSON.parse(stripePaymentMethod.oope_payment_method_config.backend_integration_url);
-
-    if (!paymentConfig.getPublicKeyUrl) {
-      console.error('getPublicKeyUrl is missing in the configuration.');
-      throw new Error('Stripe public key configuration is invalid.');
-    }
-
-    const runtimeGetPublicKeyUrl = paymentConfig.getPublicKeyUrl;
-
-    // 🔥 Fetch the Stripe Public Key dynamically
-    const stripeKeys = await fetch(runtimeGetPublicKeyUrl);
+    // if (!stripePaymentMethod || !stripePaymentMethod.oope_payment_method_config) {
+    //   console.error('Stripe payment method configuration is missing.');
+    //   throw new Error('Stripe payment method is not available.');
+    // }
+    // // 🔥 Parse the JSON config to get URLs
+    // // eslint-disable-next-line max-len
+    // const paymentConfig = JSON.parse(stripePaymentMethod.oope_payment_method_config.backend_integration_url);
+    //
+    // if (!paymentConfig.getPublicKeyUrl) {
+    //   console.error('getPublicKeyUrl is missing in the configuration.');
+    //   throw new Error('Stripe public key configuration is invalid.');
+    // }
+    //
+    // const runtimeGetPublicKeyUrl = paymentConfig.getPublicKeyUrl;
+    //
+    // // 🔥 Fetch the Stripe Public Key dynamically
+    // const stripeKeys = await fetch(runtimeGetPublicKeyUrl);
+    const stripeKeys = 'https://1244026-533azuremouse.adobeioruntime.net/api/v1/web/commerce-checkout/get-stripe-key';
 
     if (!stripeKeys.ok) {
       throw new Error(`Failed to load Stripe key: ${stripeKeys.statusText}`);
