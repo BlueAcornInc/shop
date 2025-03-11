@@ -201,6 +201,7 @@ async function mountPaymentDropin(mountId) {
 
     // 🔥 Fetch the Stripe Public Key dynamically
     const stripeKeys = await fetch(runtimeGetPublicKeyUrl);
+
     if (!stripeKeys.ok) {
       throw new Error(`Failed to load Stripe key: ${stripeKeys.statusText}`);
     }
