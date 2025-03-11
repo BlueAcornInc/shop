@@ -158,7 +158,6 @@ async function startPayment(cartData, checkoutData) {
     cartFullName,
   };
 
-  // Session data is create payment intent
   const beginCreatePaymentIntent = await createPaymentIntent(
     runtimeCreatePaymentIntentUrl,
     requestBody,
@@ -199,7 +198,7 @@ async function mountPaymentDropin(mountId) {
 
     const runtimeGetPublicKeyUrl = paymentConfig.getPublicKeyUrl;
 
-    // 🔥 Fetch the Stripe Public Key dynamically
+    // 🔥 Fetch the Stripe Public Key
     const stripeKeys = await fetch(runtimeGetPublicKeyUrl);
 
     if (!stripeKeys.ok) {
@@ -228,12 +227,11 @@ async function mountPaymentDropin(mountId) {
   const paymentElement = elements.create('payment');
   paymentElement.mount(mountId);
 
-  // ✅ Track form completion status
+  // Track form completion status
   paymentElement.on('change', (event) => {
     window.isPaymentFormComplete = event.complete;
   });
 
-  // ✅ Store Elements and Stripe instance for later use
   window.paymentElement = paymentElement;
   window.stripe = stripe;
   window.elements = elements;
@@ -615,7 +613,7 @@ export default async function decorate(block) {
               throw new Error(`Stripe Payment failed: ${error.message}`);
             }
 
-            // ✅ Set Payment Method on Adobe Commerce (Magento)
+            // ✅ Set Payment Method in Adobe Commerce
             const setPaymentMethodMutation = `
         mutation SetPaymentMethod($cartId: String!, $clientSecret: String!) {
           setPaymentMethodOnCart(input: {
