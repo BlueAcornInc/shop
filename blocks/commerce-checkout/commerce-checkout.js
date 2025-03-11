@@ -204,9 +204,8 @@ async function mountPaymentDropin(mountId) {
     //
     // const runtimeGetPublicKeyUrl = paymentConfig.getPublicKeyUrl;
     //
-    // // 🔥 Fetch the Stripe Public Key dynamically
-    // const stripeKeys = await fetch(runtimeGetPublicKeyUrl);
-    const stripeKeys = 'https://1244026-533azuremouse.adobeioruntime.net/api/v1/web/commerce-checkout/get-stripe-key';
+    // 🔥 Fetch the Stripe Public Key dynamically
+    const stripeKeys = await fetch('https://1244026-533azuremouse.adobeioruntime.net/api/v1/web/commerce-checkout/get-stripe-key');
 
     if (!stripeKeys.ok) {
       throw new Error(`Failed to load Stripe key: ${stripeKeys.statusText}`);
