@@ -1,41 +1,26 @@
-import { calcEnvironment } from "./configs.js";
-let attemptedLoadCount = 0;
-const setTheme = (themeConfigJSON) => {
-  let themeStyleString = ``;
-  themeConfigJSON?.data?.forEach(({ key, value }) => {
-    if (key.indexOf('theme-color') === 0) {
-      themeStyleString += `--${key}:${value};`;
+(() => {
+  Object.keys(sessionStorage).forEach((key) => {
+    const config = {};
+    if (key.indexOf('config:') === 0) {
+      JSON.parse(sessionStorage[key])?.data?.forEach((item) => {
+        config[item.key] = item.value;
+      });
+    }
+    const color1 = config['theme-color-1'];
+    const color2 = config['theme-color-2'];
+    const color3 = config['theme-color-3'];
+
+    const styleEl = document.createElement('style');
+    const styleStr = `
+    :root {
+      --theme-color-1: ${color1};
+      --theme-color-2: ${color2};
+      --theme-color-3: ${color3};
+    }
+    `;
+    styleEl.innerHTML = styleStr;
+    if (color1 && color2 && color3) {
+      document?.head.appendChild(styleEl);
     }
   });
-  const styleEl = document.createElement('style');
-  styleEl.className = 'theme';
-  styleEl.textContent = `:root{${themeStyleString}}`;
-  document.head.appendChild(styleEl);
-}
-const checkSessionItem = (key) => {
-  return new Promise((resolve, reject) => {
-    const themeConfig = sessionStorage.getItem(`config:${key}`);
-    if (themeConfig) {
-      setTheme(JSON.parse(themeConfig));
-      resolve(themeConfig); // Resolve the promise with the session value
-    } else {
-      initThemeLoader();
-      reject("Session item is falsy or does not exist.");
-    }
-  });
-}
-const initThemeLoader = () => {
-  attemptedLoadCount++;
-  switch (attemptedLoadCount) {
-    case 1:
-      checkSessionItem(calcEnvironment());
-      break;
-    case 2:
-      setTimeout(() => {
-        checkSessionItem(calcEnvironment());
-      }, 200);
-    default:
-      break;
-  }
-}
-initThemeLoader();
+})();

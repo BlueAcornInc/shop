@@ -1,3 +1,14 @@
+@import 'blueacorn/variables.css';
+@import 'blueacorn/common.css';
+@import 'blueacorn/forms.css';
+@import 'blueacorn/typography.css';
+@import 'blueacorn/buttons.css';
+@import 'blueacorn/header.css';
+@import 'blueacorn/footer.css';
+@import 'blueacorn/main.css';
+@import 'blueacorn/utils.css';
+@import 'blueacorn/blocks.css';
+
 :root {
   --white-font-color: var(--color-neutral-50);
   --invert-dark-to-light: invert(1);
@@ -102,7 +113,7 @@ footer.footer-wrapper {
     box-sizing: border-box;
     max-width: var(--screen-max-width);
     padding: 0 6rem;
-    margin: 8rem auto;
+    margin: var(--spacing-xsmall) var(--spacing-small);
 
     >div {
       margin: .8rem 0;
@@ -229,15 +240,4 @@ footer.footer-wrapper {
       }
     }
   }
-}
-
-main a.button:any-link,
-button.button {
-  background-color: var(--theme-color-3);
-  color: var(--color-neutral-50);
-}
-
-main a.button.secondary,
-button.button.secondary {
-  background-color: var(--theme-color-2);
 }
