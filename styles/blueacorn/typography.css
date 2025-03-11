@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@1,14..32,300&display=swap');
+
+:root, .dropin-design {
+    --type-base-font-family: 'Inter', source sans pro, -apple-system,blinkmacsystemfont, segoe ui, roboto, sans-serif;
+    --type-condensed-font-family: 'Inter', roboto-condensed, roboto-condensed-fallback, sans-serif;
+    --type-fixed-font-family: 'Inter', 'Roboto Mono', menlo, consolas, 'Liberation Mono';
+    --type-body-1-default-font: normal normal 300 1.6rem/2.6rem var(--type-base-font-family);
+
+    /* H1 */
+    --type-display-1-font: normal normal 700 5.6rem/7.2rem var(--type-base-font-family);
+    --type-display-1-letter-spacing: 0;
+
+    /* H2 */
+    --type-display-2-font: normal normal 700 4.0rem/4.8rem var(--type-base-font-family);
+    --type-display-2-letter-spacing: 0;
+
+    /* H2 */
+    --type-display-3-font: normal normal 700 3.2rem/4.0rem var(--type-base-font-family);
+    --type-display-3-letter-spacing: 0;
+
+    /* H4 */
+    --type-display-4-font: normal normal 700 2.4rem/3.2rem var(--type-base-font-family);
+    --type-display-4-letter-spacing: 0;
+}
+
+h4 {
+    font: var(--type-display-4-font);
+    letter-spacing: var(--type-display-4-letter-spacing);
+}
+
+@media (width <= 900px) {
+    :root, .dropin-design {
+        /* H1 */
+        --type-display-1-font: var(--type-display-4-font);
+        --type-display-1-letter-spacing: var(--type-display-4-letter-spacing);
+
+        /* H2 */
+        --type-display-2-font: var(--type-display-4-font);
+        --type-display-2-letter-spacing: var(--type-display-4-letter-spacing);
+
+        /* H2 */
+        --type-display-3-font: var(--type-display-4-font);
+        --type-display-3-letter-spacing: var(--type-display-4-letter-spacing);
+    }
+}
