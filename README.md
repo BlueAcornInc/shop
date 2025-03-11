@@ -12,12 +12,19 @@ https://experienceleague.adobe.com/developer/commerce/storefront/
 
 ## Commerce as a Cloud Instances
 
-- Admin Endpoint: https://na1-sandbox.admin.commerce.adobe.com/CxcF2esKkKg2c3RjAsRrzL
-- Document Authoring: https://da.live/#/blueacorninc/shop-summit
+- Customize your code: https://github.com/blueacorninc/shop-stripe
+- Edit your content: https://da.live/#/blueacorninc/shop-stripe
+- Manage your config: https://da.live/sheet#/blueacorninc/shop-stripe/configs-stage
+- Preview your storefront: https://main--shop-stripe--blueacorninc.aem.page/
+- Access your Commerce Admin: https://na1-sandbox.admin.commerce.adobe.com/C6wSs2HrNy7D79CYD5AFZP
+- Try out your API: https://edge-graph.adobe.io/api/79fae002-0e37-4d96-ba00-cfd83862c94c/graphql
 
-- REST Endpoint: https://na1-sandbox.api.commerce.adobe.com/CxcF2esKkKg2c3RjAsRrzL
-- GraphQL Endpoint: https://na1-sandbox.api.commerce.adobe.com/CxcF2esKkKg2c3RjAsRrzL/graphql
+To check the status of your Mesh, run aio api-mesh status To update your Mesh, run aio api-mesh update mesh_config.json 
 
+View your Mesh details: 
+https://developer.adobe.com/console/projects/1244026/4566206088345355270/workspaces/4566206088345376085/details 
+
+For next steps, including how to customize your storefront and make it your own, check out our docs: https://experienceleague.adobe.com/developer/commerce/storefront/
 
 ## Pre-requisites
 
