@@ -153,14 +153,10 @@ async function startPayment(cartData, checkoutData) {
   const runtimeCreatePaymentIntentUrl = 'https://1244026-533azuremouse.adobeioruntime.net/api/v1/web/commerce-checkout/payment-intent-create';
 
   const cartId = cartData?.id;
-  const cartTotal = cartData?.total?.includingTax?.value;
-  const cartCurrency = cartData?.total?.includingTax?.currency;
   const cartFullName = `${checkoutData?.billingAddress?.firstName || ''} ${checkoutData?.billingAddress?.lastName || ''}`.trim();
 
   const requestBody = {
     cartId,
-    cartTotal,
-    cartCurrency,
     cartFullName,
   };
 
