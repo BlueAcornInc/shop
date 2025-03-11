@@ -132,24 +132,25 @@ async function createPaymentIntent(endpoint, request) {
 // Function to start payment flow when an OOPE method is selected
 async function startPayment(cartData, checkoutData) {
   // ✅ Locate the "oope_stripe" payment method
-  const stripePaymentMethod = checkoutData.availablePaymentMethods.find(
-    (method) => method.code === 'oope_stripe',
-  );
+  // const stripePaymentMethod = checkoutData.availablePaymentMethods.find(
+  //   (method) => method.code === 'oope_stripe',
+  // );
+  //
+  // if (!stripePaymentMethod || !stripePaymentMethod.oope_payment_method_config) {
+  //   console.error('Stripe payment method configuration is missing.');
+  //   throw new Error('Stripe payment method is not available.');
+  // }
+  //
+  // // eslint-disable-next-line max-len
+  // const paymentConfig = JSON.parse(stripePaymentMethod.oope_payment_method_config.backend_integration_url);
+  //
+  // if (!paymentConfig.createPaymentIntentUrl) {
+  //   console.error('createPaymentIntent URL is missing in the configuration.');
+  //   throw new Error('Stripe payment configuration is invalid.');
+  // }
 
-  if (!stripePaymentMethod || !stripePaymentMethod.oope_payment_method_config) {
-    console.error('Stripe payment method configuration is missing.');
-    throw new Error('Stripe payment method is not available.');
-  }
-
-  // eslint-disable-next-line max-len
-  const paymentConfig = JSON.parse(stripePaymentMethod.oope_payment_method_config.backend_integration_url);
-
-  if (!paymentConfig.createPaymentIntentUrl) {
-    console.error('createPaymentIntent URL is missing in the configuration.');
-    throw new Error('Stripe payment configuration is invalid.');
-  }
-
-  const runtimeCreatePaymentIntentUrl = paymentConfig.createPaymentIntentUrl;
+  // const runtimeCreatePaymentIntentUrl = paymentConfig.createPaymentIntentUrl;
+  const runtimeCreatePaymentIntentUrl = 'https://1244026-533azuremouse.adobeioruntime.net/api/v1/web/commerce-checkout/payment-intent-create';
 
   const cartId = cartData?.id;
   const cartTotal = cartData?.total?.includingTax?.value;
