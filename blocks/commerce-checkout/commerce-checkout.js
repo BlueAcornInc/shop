@@ -166,7 +166,7 @@ async function startPayment(cartData, checkoutData) {
 
   if (!beginCreatePaymentIntent || !beginCreatePaymentIntent.pi_id) {
     alert('Payment error: Unable to create Stripe session.');
-    return;
+    return { pi_id: null, payment_method: null, client_secret: null };
   }
   return {
     pi_id: beginCreatePaymentIntent.pi_id,
