@@ -217,11 +217,24 @@ async function mountPaymentDropin(mountId) {
   const cartTotal = Math.round(Number(cartData?.total?.includingTax?.value) * 100);
   const cartCurrency = cartData?.total?.includingTax?.currency?.toLowerCase();
 
+  const billingDetails = {
+    phone: '8439912080',
+    address: {
+      line1: '145 Williman St',
+      city: 'Charleston',
+      state: 'SC',
+      country: 'US',
+      postalCode: '29403',
+    },
+  };
+
+  // Initialize Stripe elements with billing details
   const elements = stripe.elements({
     mode: 'payment',
     amount: cartTotal,
     currency: cartCurrency,
     paymentMethodTypes: ['card', 'link'],
+    billingDetails,
   });
 
   const paymentElement = elements.create('payment');
