@@ -234,7 +234,7 @@ async function mountPaymentDropin(mountId) {
     amount: cartTotal,
     currency: cartCurrency,
     paymentMethodTypes: ['card', 'link'],
-    billingDetails,
+    defaultValues: billingDetails,
   });
 
   const paymentElement = elements.create('payment');
