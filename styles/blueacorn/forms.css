@@ -1,0 +1,20 @@
+:root, .dropin-design {
+    --input-text-border: 1px solid #C4CCD8;
+    --input-text-border-radius: 5px;
+    --input-text-font-size: 1.4rem;
+    --input-text-padding: var(--spacing-xsmall) var(--spacing-small);
+}
+
+input[type=text],
+input[type=password],
+input[type=url],
+input[type=tel],
+input[type=search],
+input[type=number],
+input[type*=date],
+input[type=email] {
+    border: var(--input-text-border);
+    border-radius: var(--input-text-border-radius);
+    font-size: var(--input-text-font-size);
+    padding: var(--input-text-padding);
+}

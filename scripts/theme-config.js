@@ -40,8 +40,6 @@ export const getThemeConfig = async () => {
  * This function retrieves a configuration value for a given environment.
  *
  * @param {string} configParam - The configuration parameter to retrieve.
- * @param {string} [environment] - Optional, overwrite the current environment.
- * @returns {Promise<string|undefined>} - The value of the configuration parameter, or undefined.
  */
 export const getConfigValue = async (configParam) => {
   const config = await getConfig();
