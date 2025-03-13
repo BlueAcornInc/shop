@@ -203,8 +203,6 @@ function updateStripeBillingDetails() {
     },
   };
 
-  console.log('🔄 Updating Stripe Payment Element with billing details:', updatedBillingDetails);
-
   // ✅ Use updatePaymentElement to apply the new billing details
   window.paymentElement.update({
     fields: {
@@ -1070,9 +1068,9 @@ export default async function decorate(block) {
     block.replaceChildren(orderConfirmationFragment);
 
     const handleSignUpClick = async ({
-                                       inputsDefaultValueSet,
-                                       addressesData,
-                                     }) => {
+      inputsDefaultValueSet,
+      addressesData,
+    }) => {
       const signUpForm = document.createElement('div');
       AuthProvider.render(SignUp, {
         routeSignIn: () => '/customer/login',
