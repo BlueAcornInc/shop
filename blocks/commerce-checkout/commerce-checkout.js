@@ -132,26 +132,24 @@ async function createPaymentIntent(endpoint, request) {
 // Function to start payment flow when an OOPE method is selected
 async function startPayment(cartData, checkoutData) {
   // ✅ Locate the "oope_stripe" payment method
-  // const stripePaymentMethod = checkoutData.availablePaymentMethods.find(
-  //   (method) => method.code === 'oope_stripe',
-  // );
-  //
-  // if (!stripePaymentMethod || !stripePaymentMethod.oope_payment_method_config) {
-  //   console.error('Stripe payment method configuration is missing.');
-  //   throw new Error('Stripe payment method is not available.');
-  // }
-  //
-  // // eslint-disable-next-line max-len
-  // const paymentConfig = JSON.parse(stripePaymentMethod.oope_payment_method_config.backend_integration_url);
-  //
-  // if (!paymentConfig.createPaymentIntentUrl) {
-  //   console.error('createPaymentIntent URL is missing in the configuration.');
-  //   throw new Error('Stripe payment configuration is invalid.');
-  // }
+  const stripePaymentMethod = checkoutData.availablePaymentMethods.find(
+    (method) => method.code === 'oope_stripe',
+  );
 
-  // const runtimeCreatePaymentIntentUrl = paymentConfig.createPaymentIntentUrl;
-  const runtimeCreatePaymentIntentUrl = 'https://1244026-533azuremouse.adobeioruntime.net/api/v1/web/commerce-checkout/payment-intent-create';
+  if (!stripePaymentMethod || !stripePaymentMethod.oope_payment_method_config) {
+    console.error('Stripe payment method configuration is missing.');
+    throw new Error('Stripe payment method is not available.');
+  }
 
+  // eslint-disable-next-line max-len
+  const paymentConfig = JSON.parse(stripePaymentMethod.oope_payment_method_config.backend_integration_url);
+
+  if (!paymentConfig.createPaymentIntentUrl) {
+    console.error('createPaymentIntent URL is missing in the configuration.');
+    throw new Error('Stripe payment configuration is invalid.');
+  }
+
+  const runtimeCreatePaymentIntentUrl = paymentConfig.createPaymentIntentUrl;
   const cartId = cartData?.id;
   const cartFullName = `${checkoutData?.billingAddress?.firstName || ''} ${checkoutData?.billingAddress?.lastName || ''}`.trim();
 
@@ -160,7 +158,6 @@ async function startPayment(cartData, checkoutData) {
     cartFullName,
   };
 
-  // Session data is create payment intent
   const beginCreatePaymentIntent = await createPaymentIntent(
     runtimeCreatePaymentIntentUrl,
     requestBody,
@@ -168,7 +165,7 @@ async function startPayment(cartData, checkoutData) {
 
   if (!beginCreatePaymentIntent || !beginCreatePaymentIntent.pi_id) {
     alert('Payment error: Unable to create Stripe session.');
-    return;
+    return { pi_id: null, payment_method: null, client_secret: null };
   }
   return {
     pi_id: beginCreatePaymentIntent.pi_id,
@@ -186,23 +183,23 @@ async function mountPaymentDropin(mountId) {
       (method) => method.code === 'oope_stripe',
     );
 
-    // if (!stripePaymentMethod || !stripePaymentMethod.oope_payment_method_config) {
-    //   console.error('Stripe payment method configuration is missing.');
-    //   throw new Error('Stripe payment method is not available.');
-    // }
-    // // 🔥 Parse the JSON config to get URLs
-    // // eslint-disable-next-line max-len
-    // const paymentConfig = JSON.parse(stripePaymentMethod.oope_payment_method_config.backend_integration_url);
-    //
-    // if (!paymentConfig.getPublicKeyUrl) {
-    //   console.error('getPublicKeyUrl is missing in the configuration.');
-    //   throw new Error('Stripe public key configuration is invalid.');
-    // }
-    //
-    // const runtimeGetPublicKeyUrl = paymentConfig.getPublicKeyUrl;
-    //
-    // 🔥 Fetch the Stripe Public Key dynamically
-    const stripeKeys = await fetch('https://1244026-533azuremouse.adobeioruntime.net/api/v1/web/commerce-checkout/get-stripe-key');
+    if (!stripePaymentMethod || !stripePaymentMethod.oope_payment_method_config) {
+      console.error('Stripe payment method configuration is missing.');
+      throw new Error('Stripe payment method is not available.');
+    }
+    // 🔥 Parse the JSON config to get URLs
+    // eslint-disable-next-line max-len
+    const paymentConfig = JSON.parse(stripePaymentMethod.oope_payment_method_config.backend_integration_url);
+
+    if (!paymentConfig.getPublicKeyUrl) {
+      console.error('getPublicKeyUrl is missing in the configuration.');
+      throw new Error('Stripe public key configuration is invalid.');
+    }
+
+    const runtimeGetPublicKeyUrl = paymentConfig.getPublicKeyUrl;
+
+    // 🔥 Fetch the Stripe Public Key
+    const stripeKeys = await fetch(runtimeGetPublicKeyUrl);
 
     if (!stripeKeys.ok) {
       throw new Error(`Failed to load Stripe key: ${stripeKeys.statusText}`);
@@ -230,12 +227,11 @@ async function mountPaymentDropin(mountId) {
   const paymentElement = elements.create('payment');
   paymentElement.mount(mountId);
 
-  // ✅ Track form completion status
+  // Track form completion status
   paymentElement.on('change', (event) => {
     window.isPaymentFormComplete = event.complete;
   });
 
-  // ✅ Store Elements and Stripe instance for later use
   window.paymentElement = paymentElement;
   window.stripe = stripe;
   window.elements = elements;
@@ -617,7 +613,7 @@ export default async function decorate(block) {
               throw new Error(`Stripe Payment failed: ${error.message}`);
             }
 
-            // ✅ Set Payment Method on Adobe Commerce (Magento)
+            // ✅ Set Payment Method in Adobe Commerce
             const setPaymentMethodMutation = `
         mutation SetPaymentMethod($cartId: String!, $clientSecret: String!) {
           setPaymentMethodOnCart(input: {
