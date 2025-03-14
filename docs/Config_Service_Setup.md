@@ -120,7 +120,8 @@ curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST https://admin.hlx.page
 
 ```bash
 export AEM_ORG=blueacorninc
-export AEM_REPO=shop-stripe
+export AEM_REPO=shop
+export AEM_REF=main
 export AUTH_TOKEN=<cookie_value>
 ```
 
@@ -151,5 +152,38 @@ curl -X POST https://admin.hlx.page/config/$AEM_ORG/sites/$AEM_REPO/headers.json
         "value": "*"
       }
     ]
+}'
+```
+
+```bash
+curl -i --header "Cookie: auth_token=$AUTH_TOKEN" https://admin.hlx.page/config/$AEM_ORG/sites/$AEM_REPO/content.json
+```
+
+https://admin.hlx.page/config/blueacorninc/sites/shop.json
+```bash
+curl -i -X POST https://admin.hlx.page/config/$AEM_ORG/sites/$AEM_REPO/content.json \
+  -H 'content-type: application/json' \
+  --header "Cookie: auth_token=$AUTH_TOKEN" \
+  --data '{
+    "contentBusId": "0083b99827bd2dc27c087e69d2dc98f0b0351839b32e3dac88da746e5fe",
+    "source": {
+      "url": "https://content.da.live/blueacorninc/shop/",
+      "type": "markup"
+    }
+  }'
+```
+Regenerate Preview Job...
+
+```bash
+
+curl -i -X POST "https://admin.hlx.page/preview/$AEM_ORG/$AEM_REPO/$AEM_REF/*" \
+  -H 'content-type: application/json' \
+  --header "Cookie: auth_token=$AUTH_TOKEN" \
+  --data '{
+    "forceUpdate": true,
+    "paths": [
+    "/"
+    ],
+    "delete": true
 }'
 ```
