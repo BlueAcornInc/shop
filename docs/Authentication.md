@@ -25,11 +25,10 @@ curl -i --header "Cookie: auth_token=$AUTH_TOKEN" https://admin.hlx.page/config/
 Now set up the authentication scheme...
 
 ```bash
-curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST https://admin.hlx.page/config/blueacorninc/sites/shop/access/site.json \
+curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST https://admin.hlx.page/config/blueacorninc/sites/shop-stripe/access/site.json \
   -H 'content-type: application/json' \
   --data '{
-    "allow": ["*@groupinfosys.com", "*@adobe.com"],
-    "secretId": ["y484E-a6gnwdPjfwyfjDyK2X1aO902eKxT4NCiQKHdc"]
+    "admin": ["*@groupinfosys.com", "*@adobe.com"]
   }'
 ```
 
@@ -38,8 +37,17 @@ curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST https://admin.hlx.page
 Let's also roll it back, so we can go live!!
 
 ```bash
-curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST https://admin.hlx.page/config/blueacorninc/sites/shop/access/site.json
+curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST https://admin.hlx.page/config/blueacorninc/sites/shop-stripe/access/site.json   -H 'content-type: application/json' \
+  --data '{
+
+  }'
 ```
+
+curl -i --header "Cookie: auth_token=$AUTH_TOKEN" \
+     --header "Content-Type: application/json" \
+     -X POST \
+     --data '{"public": true}' \
+     https://admin.hlx.page/config/blueacorninc/sites/shop-stripe/access/site.json
 
 
 ## Securing The Endpoint
@@ -51,5 +59,23 @@ This token can be fetched from the valuei n the first step above. Keep in mind, 
 ```bash
 curl https://main--shop--blueacorninc.aem.live \
   -H 'authorization: token hlx_Z5sf_WEE0HDkJqnCm1pa7-r5xLxnRMnZhEcGZjDhQUg'
+```
+Remove the 401 auth...
+
+```bash
+curl -i --header "Cookie: auth_token=$AUTH_TOKEN" \
+     -X DELETE \
+     https://admin.hlx.page/config/blueacorninc/sites/shop-stripe/access/site.json
+```
+
+
+Let's add some admins...
+
+```bash
+curl -i --header "Cookie: auth_token=$AUTH_TOKEN" \
+     --header "Content-Type: application/json" \
+     -X POST \
+     --data '{"admins": ["doug.hatcher@blueacornici.com", "daniel.zaretsky@blueacornici.com", "sam.davis-castro@blueacornici.com"]}' \
+     https://admin.hlx.page/config/blueacorninc/sites/shop-stripe/access/site.json
 ```
 

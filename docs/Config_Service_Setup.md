@@ -116,3 +116,40 @@ curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST https://admin.hlx.page
   }
 }'
  ```
+
+
+```bash
+export AEM_ORG=blueacorninc
+export AEM_REPO=shop-stripe
+export AUTH_TOKEN=<cookie_value>
+```
+
+Download basic configuration...
+
+```bash
+curl -i --header "Cookie: auth_token=$AUTH_TOKEN" https://admin.hlx.page/config/$AEM_ORG/sites/$AEM_REPO.json
+```
+
+
+Check Admin Privs...
+
+```bash
+curl -i --header "Cookie: auth_token=$AUTH_TOKEN" https://admin.hlx.page/config/$AEM_ORG/sites/$AEM_REPO/access/admin.json
+```
+
+
+Update Headers...
+
+```bash
+curl -X POST https://admin.hlx.page/config/$AEM_ORG/sites/$AEM_REPO/headers.json \
+  -H 'content-type: application/json' \
+  -H 'x-auth-token: <your-auth-token>' \
+  --data '{
+	"/**": [
+      {
+        "key": "access-control-allow-origin",
+        "value": "*"
+      }
+    ]
+}'
+```

@@ -35,7 +35,7 @@ footer.footer-wrapper {
     }
 
     .columns-img-col picture {
-      width: 12.8rem;
+      width: var(--logo-width);
       display: flex;
       justify-content: flex-start;
       align-items: center;

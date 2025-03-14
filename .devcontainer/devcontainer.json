@@ -22,7 +22,7 @@
 	},
 
 	"remoteEnv": {
-		"AEM_PARAMS": "--url https://main--shop-stripe--blueacorninc.aem.page"
+		"AEM_PARAMS": "--url https://main--shop-summit--blueacorninc.aem.live"
 	},
 
 	"portsAttributes": {
