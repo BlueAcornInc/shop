@@ -150,7 +150,7 @@ li.nav-drop img {
 }
 
 header nav .nav-brand img {
-  width: 128px;
+  width: var(--logo-width);
   height: auto;
 }
 
@@ -777,6 +777,7 @@ header
 
   header nav[aria-expanded='true'] .nav-sections {
     width: calc(100vw + 40px);
+    left: 0;
     position: absolute;
     top: 0;
     transform: translateX(calc(0vw - 20px - calc(calc(100vw - 100%) / 2)));

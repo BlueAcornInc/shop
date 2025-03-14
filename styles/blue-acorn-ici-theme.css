@@ -34,18 +34,6 @@ footer.footer-wrapper {
       align-items: center;
     }
 
-    .columns-img-col picture {
-      width: var(--logo-width);
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-
-      img {
-        object-fit: contain;
-        height: 2rem;
-      }
-    }
-
     ul,
     li {
       margin: 0;
