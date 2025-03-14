@@ -186,8 +186,14 @@
     }
 }
 
-img.footer-logo {
-    width: 256px;
-    margin-right: 56px;
-    /* min-width: 180px; */
+.blueacorn-footer-content {
+    img.footer-logo {
+        width: 256px;
+        margin-right: 36px;
+    }
+
+    .social-links {
+        filter: saturate(3.5);
+    }
 }
+
