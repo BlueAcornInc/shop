@@ -174,6 +174,47 @@ async function startPayment(cartData, checkoutData) {
   };
 }
 
+function updateStripeBillingDetails() {
+  if (!window.stripe || !window.elements || !window.paymentElement) {
+    console.warn('Stripe Elements not initialized yet.');
+    return;
+  }
+
+  const billingAddress = checkoutData?.billingAddress || {};
+  const shippingAddress = checkoutData?.shippingAddress || {};
+  const isSameAsShipping = checkoutData?.isBillingSameAsShipping;
+
+  const selectedBillingAddress = isSameAsShipping ? shippingAddress : billingAddress;
+
+  // ✅ Correctly format billing details
+  const updatedBillingDetails = {
+    billingDetails: {
+      name: `${selectedBillingAddress?.firstName || ''} ${selectedBillingAddress?.lastName || ''}`.trim(),
+      email: checkoutData?.email || '',
+      phone: selectedBillingAddress?.telephone || '',
+      address: {
+        line1: selectedBillingAddress?.street?.[0] || '',
+        line2: selectedBillingAddress?.street?.[1] || '',
+        city: selectedBillingAddress?.city || '',
+        state: selectedBillingAddress?.region?.code || '',
+        country: selectedBillingAddress?.country?.code || '',
+        postal_code: selectedBillingAddress?.postcode || '',
+      },
+    },
+  };
+
+  // ✅ Use updatePaymentElement to apply the new billing details
+  window.paymentElement.update({
+    fields: {
+      billingDetails: 'auto', // Let Stripe collect billing details
+    },
+    defaultValues: updatedBillingDetails, // Pre-fill with the selected address
+  });
+
+  // Store for later use when confirming payment
+  window.updatedBillingDetails = updatedBillingDetails;
+}
+
 async function mountPaymentDropin(mountId) {
   let stripePublicKey;
 
@@ -217,11 +258,37 @@ async function mountPaymentDropin(mountId) {
   const cartTotal = Math.round(Number(cartData?.total?.includingTax?.value) * 100);
   const cartCurrency = cartData?.total?.includingTax?.currency?.toLowerCase();
 
+  // 🔥 Dynamically set billing details from checkoutData
+  const billingAddress = checkoutData?.billingAddress || {};
+  const shippingAddress = checkoutData?.shippingAddress || {};
+  const isSameAsShipping = checkoutData?.isBillingSameAsShipping;
+
+  const selectedBillingAddress = isSameAsShipping ? shippingAddress : billingAddress;
+
+  // ✅ Construct billing details for Stripe
+  const billingDetails = {
+    name: `${selectedBillingAddress?.firstName || ''} ${selectedBillingAddress?.lastName || ''}`.trim(),
+    email: checkoutData?.email || '',
+    phone: selectedBillingAddress?.telephone || '',
+    address: {
+      line1: selectedBillingAddress?.street?.[0] || '',
+      line2: selectedBillingAddress?.street?.[1] || '',
+      city: selectedBillingAddress?.city || '',
+      state: selectedBillingAddress?.region?.code || '',
+      country: selectedBillingAddress?.country?.code || '',
+      postalCode: selectedBillingAddress?.postcode || '',
+    },
+  };
+
+  // Initialize Stripe elements with billing details
   const elements = stripe.elements({
     mode: 'payment',
     amount: cartTotal,
     currency: cartCurrency,
     paymentMethodTypes: ['card', 'link'],
+    defaultValues: {
+      billingDetails,
+    },
   });
 
   const paymentElement = elements.create('payment');
@@ -235,6 +302,7 @@ async function mountPaymentDropin(mountId) {
   window.paymentElement = paymentElement;
   window.stripe = stripe;
   window.elements = elements;
+  events.on('checkout/updated', updateStripeBillingDetails);
 }
 
 export default async function decorate(block) {
@@ -606,7 +674,12 @@ export default async function decorate(block) {
             const { error, paymentIntent } = await window.stripe.confirmPayment({
               elements: window.elements,
               redirect: 'if_required', // Avoid unnecessary redirects
-              clientSecret,
+              clientSecret, // The client secret from backend
+              confirmParams: {
+                payment_method_data: {
+                  billing_details: window.updatedBillingDetails.billing_details,
+                },
+              },
             });
 
             if (error) {
@@ -1108,5 +1181,6 @@ export default async function decorate(block) {
   events.on('checkout/initialized', handleCheckoutInitialized, { eager: true });
   events.on('checkout/initialized', (data) => { checkoutData = data; }, { eager: true });
   events.on('checkout/updated', handleCheckoutUpdated);
+  events.on('checkout/updated', (data) => { checkoutData = data; updateStripeBillingDetails(); });
   events.on('order/placed', handleOrderPlaced);
 }
