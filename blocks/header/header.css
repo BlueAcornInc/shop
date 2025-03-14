@@ -805,14 +805,14 @@ header
     border-bottom: 1px solid var(--color-neutral-300);
     text-decoration: none;
     font-weight: 500;
-    padding: 14px 28px;
+    padding: 14px;
   }
 
   header nav .nav-sections .nav-sections-ul-wrapper > ul > li ul li a {
     display: inline-block;
     box-sizing: border-box;
     font-size: 1.4rem;
-    padding: 1.4rem 4.2rem;
+    padding: 1.4rem;
     border-bottom: solid 1px rgb(255 255 255 / 23%);
     width: 100%;
   }

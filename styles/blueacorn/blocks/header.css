@@ -22,6 +22,9 @@ header.header-wrapper {
         display: flex;
         align-items: center;
         gap: 0;
+        max-width: var(--screen-max-width);
+        padding: 0 var(--spacing-small);
+        width: 100%;
 
         & > a {
             margin-right: auto;
@@ -158,6 +161,10 @@ header.header-wrapper {
 
 @media (width >= 900px) {
     header.header-wrapper {
+        nav {
+            padding: 0 var(--spacing-medium);
+        }
+
         .nav-sections {
             .nav-sections-ul-wrapper > ul > li > a {
                 color: var(--header-text-color);
