@@ -5,7 +5,7 @@ async function initTheme() {
   const rootElement = document.documentElement;
 
   themeConfig.forEach((item) => {
-    rootElement.style.setProperty(item.key, item.value);
+    rootElement.style.setProperty(item.key.trimStart().trimEnd(), item.value);
   });
 }
 

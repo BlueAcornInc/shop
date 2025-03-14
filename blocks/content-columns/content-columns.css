@@ -65,6 +65,16 @@ main > .section > div.content-columns-wrapper {
     }
 }
 
+/*Mobile*/
+@media (width < 990px) {
+    .content-columns {
+        &.full-width-buttons-mobile .button {
+            width: 100%;
+        }
+    }
+}
+
+/*Desktop*/
 @media (width >= 900px) {
     .content-columns-row-wrapper {
         flex-direction: row;

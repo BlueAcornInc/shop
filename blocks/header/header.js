@@ -99,7 +99,7 @@ const handleAuthenticated = (authenticated) => {
  * @param {Boolean} expanded Whether the element should be expanded or collapsed
  */
 function toggleAllNavSections(sections, expanded = false) {
-  sections.querySelectorAll('.nav-sections > ul > li').forEach((section) => {
+  sections.querySelectorAll('.nav-sections-ul-wrapper > ul > li').forEach((section) => {
     section.setAttribute('aria-expanded', expanded);
   });
 
@@ -122,7 +122,7 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
   nav.setAttribute('aria-expanded', expanded ? 'false' : 'true');
   toggleAllNavSections(
     navSections,
-    expanded || isDesktop.matches ? 'false' : 'true',
+    expanded || isDesktop.matches ? 'false' : 'false',
   );
   button.setAttribute(
     'aria-label',
@@ -283,7 +283,7 @@ export default async function decorate(block) {
         navSection.addEventListener('click', () => {
           if (isDesktop.matches) {
             const expanded = navSection.getAttribute('aria-expanded') === 'true';
-            toggleAllNavSections(navSections);
+            toggleAllNavSections(navSections, false);
             navSection.setAttribute(
               'aria-expanded',
               expanded ? 'false' : 'true',

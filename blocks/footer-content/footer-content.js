@@ -10,13 +10,12 @@ export default async function decorate(block) {
   const footerLogoBlock = document.createElement('div');
   const footerLinksBlock = document.createElement('div');
   const footerSocialBlock = document.createElement('div');
-  const socials = ['facebook', 'instagram', 'linkedin', 'x', 'youtube'];
 
   footerLogoBlock.className = 'footer-logo';
   footerLinksBlock.className = 'footer-links';
   footerSocialBlock.className = 'footer-social';
 
-  fetch('images/logo.svg')
+  fetch('/images/logo.svg')
     .then((response) => response.text())
     .then((text) => {
       footerLogoBlock.innerHTML = `
@@ -51,21 +50,6 @@ export default async function decorate(block) {
   }
 
   footerSocialBlock.innerHTML = `
-    <form class="form subscribe" action="/newsletter/subscriber/new/" method="post" id="newsletter-validate-detail">
-      <div class="field newsletter">
-        <label for="newsletter">
-          <span class="label">
-            Sign up for our newsletter
-          </span>
-        </label>
-        <div class="control">
-          <input name="email" type="email" id="newsletter" placeholder="Email Address">
-          <button class="action button subscribe primary" title="Sign Up" type="submit" aria-label="Sign Up">
-            <span>Sign Up</span>
-          </button>
-        </div>
-      </div>
-    </form>
     <ul class="social-links">
       <li>
         <a href="https://www.facebook.com/StripeHQ/" class="facebook">
