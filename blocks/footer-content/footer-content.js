@@ -50,21 +50,6 @@ export default async function decorate(block) {
   }
 
   footerSocialBlock.innerHTML = `
-    <form class="form subscribe" action="/newsletter/subscriber/new/" method="post" id="newsletter-validate-detail">
-      <div class="field newsletter">
-        <label for="newsletter">
-          <span class="label">
-            Sign up for our newsletter
-          </span>
-        </label>
-        <div class="control">
-          <input name="email" type="email" id="newsletter" placeholder="Email Address">
-          <button class="action button subscribe primary" title="Sign Up" type="submit" aria-label="Sign Up">
-            <span>Sign Up</span>
-          </button>
-        </div>
-      </div>
-    </form>
     <ul class="social-links">
       <li>
         <a href="https://www.facebook.com/StripeHQ/" class="facebook">

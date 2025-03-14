@@ -1,4 +1,7 @@
 /* buttons */
+.dropin-button--primary,
+a.dropin-button--primary,
+.dropin-iconButton--primary,
 main a.button:any-link,
 button.button {
     background-color: var(--theme-color-3);
@@ -24,4 +27,10 @@ button.button:hover,
 button.button:focus {
     cursor: pointer;
     opacity: .8;
+}
+
+.dropin-button--tertiary,
+a.dropin-button--tertiary,
+.dropin-iconButton--tertiary {
+    color: var(--theme-color-3);
 }

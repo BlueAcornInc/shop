@@ -25,7 +25,6 @@
 .footer-links {
     padding: 0;
     border-top: 1px solid var(--footer-border-color);
-    border-bottom: 1px solid var(--footer-border-color);
     margin: var(--spacing-medium) 0;
 
     .footer-links-column {
@@ -178,6 +177,8 @@
 
     .social-links {
         border: none;
+        padding-top: 0;
+        margin-top: 0;
 
         li {
             margin: 0 var(--spacing-small) 0 0;
