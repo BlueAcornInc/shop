@@ -529,7 +529,7 @@ header
   }
 }
 
-@media (width > 991px) {
+@media (width >= 900px) {
   header nav .nav-sections .nav-sections-ul-wrapper {
     overflow: visible;
   }
@@ -691,7 +691,7 @@ header
 }
 
 /* Mobile Nav */
-@media (width < 990px) {
+@media (width < 900px) {
   header nav .nav-sections ul {
     padding: 0;
   }
@@ -732,7 +732,6 @@ header
 
   header nav .nav-sections .nav-sections-ul-wrapper > ul > li.expanded > ul {
     display: block;
-    background-color: grey;
   }
 
   header nav .nav-sections .active-submenu {
@@ -816,6 +815,5 @@ header
     padding: 1.4rem 4.2rem;
     border-bottom: solid 1px rgb(255 255 255 / 23%);
     width: 100%;
-    color: var(--color-neutral-50);
   }
 }

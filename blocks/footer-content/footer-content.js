@@ -10,13 +10,12 @@ export default async function decorate(block) {
   const footerLogoBlock = document.createElement('div');
   const footerLinksBlock = document.createElement('div');
   const footerSocialBlock = document.createElement('div');
-  const socials = ['facebook', 'instagram', 'linkedin', 'x', 'youtube'];
 
   footerLogoBlock.className = 'footer-logo';
   footerLinksBlock.className = 'footer-links';
   footerSocialBlock.className = 'footer-social';
 
-  fetch('images/logo.svg')
+  fetch('/images/logo.svg')
     .then((response) => response.text())
     .then((text) => {
       footerLogoBlock.innerHTML = `

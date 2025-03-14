@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@1,14..32,300&display=swap');
 
 :root, .dropin-design {
-    --type-base-font-family: 'Inter', source sans pro, -apple-system,blinkmacsystemfont, segoe ui, roboto, sans-serif;
-    --type-condensed-font-family: 'Inter', roboto-condensed, roboto-condensed-fallback, sans-serif;
-    --type-fixed-font-family: 'Inter', 'Roboto Mono', menlo, consolas, 'Liberation Mono';
+    --type-base-font-family: 'Helvetica Neue', 'Helvetica Neue Bold', Helvetica, source sans pro, -apple-system,blinkmacsystemfont, segoe ui, roboto, sans-serif;
+    --type-condensed-font-family: 'Helvetica Neue', 'Helvetica Neue Bold', Helvetica, roboto-condensed, roboto-condensed-fallback, sans-serif;
+    --type-fixed-font-family: 'Helvetica Neue', 'Roboto Mono', 'Helvetica Neue Bold', Helvetica, menlo, consolas, 'Liberation Mono';
     --type-body-1-default-font: normal normal 300 1.6rem/2.6rem var(--type-base-font-family);
 
     /* H1 */
