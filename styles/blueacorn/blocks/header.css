@@ -138,8 +138,14 @@ header.header-wrapper {
 }
 
 @media (width < 900px) {
-    header nav[aria-expanded='true'] .nav-sections {
-        z-index: 999;
+    header nav[aria-expanded='true'] {
+        .nav-hamburger {
+            z-index: 9999;
+        }
+
+        .nav-sections {
+            z-index: 999;
+        }
     }
 
     header.header-wrapper {
