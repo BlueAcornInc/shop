@@ -150,7 +150,7 @@ li.nav-drop img {
 }
 
 header nav .nav-brand img {
-  width: 128px;
+  width: var(--logo-width);
   height: auto;
 }
 
