@@ -1,0 +1,7 @@
+.block.stars {
+  zoom: .6;
+
+  .star-rating {
+    display: flex;
+  }
+}
