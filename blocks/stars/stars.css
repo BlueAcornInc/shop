@@ -1,7 +1,10 @@
 .block.stars {
-  zoom: .6;
+  zoom: .6; */
 
-  .star-rating {
+  star-rating {
     display: flex;
   }
+}
+.block.stars.hidden {
+  display: none;
 }

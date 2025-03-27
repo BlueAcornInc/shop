@@ -1,13 +1,19 @@
 /* START LEAFLET MAP */
 .leaflet-container {
-  font-family: var(--type-base-font-family) !important;
 
   .leaflet-popup-close-button {
     display: none;
   }
 
+  .leaflet-pane {
+    z-index: 0;
+  }
+
+  .leaflet-control {
+    z-index: 2;
+  }
+
   .leaflet-popup-content {
-    /* font: var(--type-body-1-default-font); */
     letter-spacing: var(--type-body-1-default-letter-spacing);
     padding: .5rem;
     display: flex;
@@ -26,7 +32,8 @@
     position: relative;
     top: 1.3rem;
     left: 0;
-    background: var(--color-informational-800) !important;
+    /* background: var(--color-informational-800) !important; */
+    background: var(--theme-color-1) !important;
     color: var(--color-neutral-50) !important;
   }
 
@@ -77,8 +84,17 @@
   position: relative;
   box-sizing: border-box;
 
+  .my-store {
+    display: flex;
+    padding: 0 var(--spacing-small);
+  }
+
+  .my-store__selected-store {
+    margin-left: .5rem;
+  }
+
   .hidden {
-    display: none;
+    display: none !important;
   }
 
   div,
@@ -111,7 +127,6 @@
     gap: .8rem;
     overflow-x: scroll;
     padding: 0;
-    z-index: 10001;
 
     ::-webkit-scrollbar {
       display: none;
@@ -127,10 +142,6 @@
     gap: .5rem
   }
 
-  .store-card[data-store-num='1'] {
-    margin: .8rem 0;
-  }
-
   .store-card {
     background: var(--color-neutral-50);
     min-width: 28rem;
@@ -138,10 +149,13 @@
     margin: .8rem 0;
     padding: 1.6rem;
     box-shadow: 0 0px 0 1px var(--color-neutral-400);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   .store-card.selected {
-    box-shadow: 0px 0px 4px 0px var(--color-informational-800);
+    box-shadow: 0px 0px 4px 0px var(--theme-color-3);
   }
 
   .store-card__header,
@@ -155,6 +169,7 @@
   }
 
   .store-card__number,
+  .store-card__name,
   .store-card__title {
     font-size: 1.6rem;
     line-height: 1.2;
@@ -178,6 +193,7 @@
   }
 
   .store-card__phone {
+    color: var(--color-neutral-800);
     font-size: 1.2rem !important;
     line-height: 1.6rem !important;
   }
@@ -192,14 +208,13 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    z-index: 400;
     background: var(--color-neutral-50);
     width: calc(100% - 2.4rem);
     padding: .4rem;
     border-radius: 2.4rem;
     box-shadow: 0px 4px 15px 0px rgba(0, 0, 0, 0.25);
     position: absolute;
-    top: 1.6rem;
+    top: 3.5rem;
     transform: translateX(-50%);
     left: 50%;
   }
@@ -226,7 +241,7 @@
   .zip-form__button {
     display: flex;
     border-radius: 40px;
-    background: var(--Text-CTA-Filled-Surface-Default, var(--color-informational-800));
+    background: var(--theme-color-1);
     color: var(--color-neutral-50);
     border: none;
     height: 4rem;
@@ -237,7 +252,12 @@
     justify-content: center;
   }
 
+  .zip-form__button:hover {
+    cursor: pointer;
+  }
+
   .blue-acorn__icon {
+    font-weight: 600;
     background: var(--color-neutral-900);
     border-radius: 50%;
   }
@@ -265,33 +285,32 @@
       height: 48rem;
       overflow-x: unset;
       overflow-y: scroll;
-      top: 50%;
+      top: calc(50% + 1rem);
       left: .6rem;
-      z-index: 10001;
       background: #fff;
       border-radius: 1rem;
       transform: translateY(-50%);
-      padding: 1.2rem;
+      padding: 5.8rem 1.2rem 1.2rem 1.2rem;
       box-shadow: 0px 4px 15px 0px rgba(0, 0, 0, 0.25);
       gap: unset;
-    }
-
-    .store-card[data-store-num='1'] {
-      margin-top: 5.2rem;
     }
 
     .zip-form {
       transform: unset;
       box-shadow: unset;
       background: #fff;
-      z-index: 10002;
+      z-index: 1;
       width: 36rem;
       left: .6rem;
-      top: 1rem;
+      top: 3rem;
       padding: 1rem 1rem;
       border-radius: 1rem;
       border-bottom-left-radius: unset;
       border-bottom-right-radius: unset;
+    }
+
+    .my-store {
+      padding: unset;
     }
   }
 }

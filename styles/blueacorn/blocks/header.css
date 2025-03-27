@@ -16,6 +16,7 @@ header.header-wrapper {
         border: none;
         width: 100%;
         background: var(--header-background);
+        z-index: 1001;
     }
 
     nav {
