@@ -1,10 +1,15 @@
-import stars from '../stars/stars.js';
 import { loadCSS, loadScript } from '../../scripts/aem.js';
 
 export default async function decorate(block) {
   loadCSS('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
   loadScript('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js');
   const myStoreSession = JSON.parse(window.sessionStorage.getItem('myStore'));
+  const getRatingPercentage = (n) => {
+    if (typeof n !== 'number' || isNaN(n)) {
+      throw new Error('Input must be a valid number');
+    }
+    return (n / 5) * 100;
+  }
 
   const createMyStore = () => {
     const baseClassName = 'my-store';
@@ -70,7 +75,7 @@ export default async function decorate(block) {
   const markers = [];
 
   const createStoreCard = (store, storeCardDisplayOrder, i) => {
-    // Create the SVG element
+    // Create the phone SVG element
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     svg.setAttribute('width', '16');
@@ -144,14 +149,21 @@ export default async function decorate(block) {
             el = document.createElement('div');
           }
           if (item === 'rating') {
+            const rating = Number(store.rating);
+            const percentRating = getRatingPercentage(rating).toPrecision(3);
             const starRatingEl = document.createElement('div');
-            starRatingEl.setAttribute('data-rating', store[item]);
-            starRatingEl.setAttribute('data-max', 5);
-            starRatingEl.setAttribute('data-color', '#e79f5c');
-            starRatingEl.setAttribute('data-spacing', 5);
-            starRatingEl.classList.add('stars');
-            starRatingEl.classList.add('block');
-            stars(starRatingEl);
+            starRatingEl.className = `${baseClassName}__star-rating`;
+
+            const starsEl = document.createElement('object');
+            starsEl.data = '/images/stars/stars-medium.svg';
+            starsEl.type = 'image/svg+xml';
+            starsEl.className = `${baseClassName}__stars`;
+
+            const sliderEl = document.createElement('div');
+            sliderEl.className = `${baseClassName}__slider`;
+            sliderEl.style.width = `${percentRating}px`;
+            starRatingEl.appendChild(starsEl);
+            starRatingEl.appendChild(sliderEl);
             elContainer.appendChild(starRatingEl);
           }
           el.className = `${baseClassName}__${item}`;

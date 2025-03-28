@@ -45,7 +45,6 @@
     counter-increment: item;
     content: counter(item);
     margin-right: 0.5em;
-
     width: 2rem;
     height: 2rem;
     position: absolute;
@@ -187,9 +186,24 @@
     left: -3.6rem;
   }
 
-  .store-card__rating {
-    display: flex;
-    align-items: flex-end;
+  .store-card__star-rating {
+    width: 10rem;
+    height: 2rem;
+    position: relative;
+  }
+
+  .store-card__stars {
+    z-index: 1;
+    position: relative;
+  }
+
+  .store-card__slider {
+    height: 2rem;
+    background: linear-gradient(90deg, var(--theme-color-2), var(--theme-color-1));
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 0;
   }
 
   .store-card__phone {
@@ -199,8 +213,8 @@
   }
 
   .store-card:hover {
-    background-color: var(--color-neutral-200);
     cursor: pointer;
+    box-shadow: 0px 0px 4px 0px var(--theme-color-3);
   }
 
   .zip-form {
