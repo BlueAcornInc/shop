@@ -1,3 +1,48 @@
+# Yotpo Reviews Block for Adobe Commerce
+
+## Overview
+
+This JavaScript module decorates a block with Yotpo reviews by dynamically loading the Yotpo widget and configuring it with product-specific details. It integrates with Adobe Commerce to fetch necessary configurations and display reviews accordingly.
+
+## Features
+
+- Dynamically loads the Yotpo reviews widget.
+- Configures the widget with product-specific details like product ID, name, URL, and price.
+- Fetches Yotpo configuration from an API.
+- Handles errors gracefully if the API request fails.
+
+## Implementation
+
+### 1. **Initialize the Block**
+
+- Creates a `div` element to hold the Yotpo reviews widget.
+- Dynamically adds necessary attributes based on product details.
+- Appends the element to the block.
+
+### 2. **Fetch Configuration Data**
+
+- Retrieves the Yotpo configuration URL from Adobe Commerce settings.
+- Fetches the base currency for the store.
+- Constructs a widget configuration object with the retrieved values.
+
+### 3. **Build and Load the Widget**
+
+- Uses the fetched configuration data to construct the widget.
+- Loads the Yotpo script dynamically.
+- Appends the widget instance to the block.
+
+### 4. **Handle API Errors**
+
+- If the API request fails, logs the error in the console.
+- Ensures the script does not break the page if Yotpo data is unavailable.
+
+
+Minimum Yotpo Config should include:
+API Key (app key).
+We also have the API Secret but are not using it for this implementation.
+
+---
+
 # Yotpo Reviews
 
 Yotpo Review block for Adobe Commerce Storefront

@@ -34,6 +34,7 @@ export default async function decorate(block) {
 
   const getWarehousesAvailability = async () => {
     const config = {
+      // To Do, To-Do. Change baseUrl to production instead of stage
       baseUrl: 'https://stage-sandbox.m2cloud.blueacorn.net/rest/default/V1/inventory/source-items',
       product: events._lastEvent?.['pdp/data']?.payload ?? null,
     }
@@ -41,11 +42,10 @@ export default async function decorate(block) {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        // To Do, To-Do. Remove this bearer token
         'Authorization': 'Bearer ci5ewjokz5e39xbskprillktpc1uj7eb',
       },
     };
-    // for testing
-    config.product.sku = '24-UG04';
 
     const data = fetch(`${config.baseUrl}?searchCriteria[filter_groups][0][filters][0][field]=sku&searchCriteria[filter_groups][0][filters][0][value]=${config.product.sku}&searchCriteria[filter_groups][0][filters][0][condition_type]=eq`, options)
       .then(response => {

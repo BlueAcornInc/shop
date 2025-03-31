@@ -17,6 +17,7 @@ export default async function decorate(block) {
   };
 
   const widgetConfig = [
+    // To Do, To-Do. Remove hard-coded yotpo-instance-id. I requested this be added to the Admin UI for Yotpo Config Editor.
     { attr: 'data-yotpo-instance-id', value: '1039593' },
     { attr: 'data-yotpo-product-id', value: window.location.pathname.slice(window.location.pathname.lastIndexOf('/') + 1) },
     { attr: 'data-yotpo-name', value: 'evergreen' },
