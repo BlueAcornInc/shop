@@ -1,0 +1,3 @@
+[submodule "bazaarvoice"]
+	path = aio/bazaarvoice
+	url = git@github.com:BlueAcornInc/aio-commerce-bazaarvoice-app.git
