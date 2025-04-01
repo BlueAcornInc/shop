@@ -4,3 +4,6 @@
 [submodule "aio/stripe"]
 	path = aio/stripe
 	url = git@github.com:BlueAcornInc/aio-commerce-stripe-app.git
+[submodule "aio/shipstation"]
+	path = aio/shipstation
+	url = git@github.com:BlueAcornInc/aio-commerce-shipstation-app.git
