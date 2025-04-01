@@ -1,18 +1,27 @@
 [submodule "bazaarvoice"]
 	path = aio/bazaarvoice
 	url = git@github.com:BlueAcornInc/aio-commerce-bazaarvoice-app.git
+	branch = main
 [submodule "aio/stripe"]
 	path = aio/stripe
 	url = git@github.com:BlueAcornInc/aio-commerce-stripe-app.git
+	branch = main
 [submodule "aio/shipstation"]
 	path = aio/shipstation
 	url = git@github.com:BlueAcornInc/aio-commerce-shipstation-app.git
+	branch = main
 [submodule "aio/yotpo"]
 	path = aio/yotpo
 	url = git@github.com:BlueAcornInc/aio-commerce-yotpo-app.git
+	branch = main
 [submodule "new"]
 	path = aio/blocks/store-locator
 	url = git@github.com:BlueAcornInc/aio-commerce-storelocator-blocks.git
+	branch = main
 [submodule "aio/blocks/yotpo"]
 	path = aio/blocks/yotpo
 	url = git@github.com:BlueAcornInc/aio-commerce-yotpo-blocks.git
+	branch = main
+[submodule "aio/blocks/bazaarvoice"]
+	path = aio/blocks/bazaarvoice
+	url = git@github.com:BlueAcornInc/aio-commerce-bazaarvoice-blocks.git
