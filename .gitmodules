@@ -10,3 +10,6 @@
 [submodule "aio/yotpo"]
 	path = aio/yotpo
 	url = git@github.com:BlueAcornInc/aio-commerce-yotpo-app.git
+[submodule "new"]
+	path = aio/blocks/store-locator
+	url = git@github.com:BlueAcornInc/aio-commerce-storelocator-blocks.git
