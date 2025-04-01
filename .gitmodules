@@ -1,3 +1,6 @@
 [submodule "bazaarvoice"]
 	path = aio/bazaarvoice
 	url = git@github.com:BlueAcornInc/aio-commerce-bazaarvoice-app.git
+[submodule "aio/stripe"]
+	path = aio/stripe
+	url = git@github.com:BlueAcornInc/aio-commerce-stripe-app.git
