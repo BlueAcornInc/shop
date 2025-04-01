@@ -8,14 +8,21 @@ https://experienceleague.adobe.com/developer/commerce/storefront/
 
 - Preview: https://main--shop-summit--blueacorninc.aem.page/
 - Live: https://main--shop-summit--blueacorninc.aem.live/
-- Github: https://github.com/BlueAcornInc/shop-summit
+- Github: https://github.com/BlueAcornInc/shop
+
+## Evergreen Storefront
+
+In an effort to consolidate some repos, evergreen will be a branch that can be merged from `main`.
+
+- Preview: https://evergreen--shop-summit--blueacorninc.aem.page/
+- Live: https://evergreen--shop-summit--blueacorninc.aem.live/
 
 ## Commerce as a Cloud Instances
 
-- Customize your code: https://github.com/blueacorninc/shop-stripe
-- Edit your content: https://da.live/#/blueacorninc/shop-stripe
-- Manage your config: https://da.live/sheet#/blueacorninc/shop-stripe/configs-stage
-- Preview your storefront: https://main--shop-stripe--blueacorninc.aem.page/
+- Customize your code: https://github.com/blueacorninc/shop
+- Edit your content: https://da.live/#/blueacorninc/shop
+- Manage your config: https://da.live/sheet#/blueacorninc/shop/configs-stage
+- Preview your storefront: https://main--shop--blueacorninc.aem.page/
 - Access your Commerce Admin: https://na1-sandbox.admin.commerce.adobe.com/C6wSs2HrNy7D79CYD5AFZP
 - Try out your API: https://edge-graph.adobe.io/api/79fae002-0e37-4d96-ba00-cfd83862c94c/graphql
 
