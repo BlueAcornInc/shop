@@ -12,7 +12,8 @@
     "-postinstall": "npm run install:dropins",
     "-postupdate": "npm run install:dropins",
     "git:ownership": "git config --global --add safe.directory .",
-    "git:update": "git submodule update --init --recursive"
+    "git:update": "git submodule update --init --recursive",
+    "git:pull": "git submodule foreach git pull origin main"
   },
   "repository": {
     "type": "git",
