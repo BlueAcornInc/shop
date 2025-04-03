@@ -25,3 +25,6 @@
 [submodule "aio/blocks/bazaarvoice"]
 	path = aio/blocks/bazaarvoice
 	url = git@github.com:BlueAcornInc/aio-commerce-bazaarvoice-blocks.git
+[submodule "aio/blocks/stripe"]
+	path = aio/blocks/stripe
+	url = git@github.com:BlueAcornInc/aio-commerce-stripe-blocks.git
