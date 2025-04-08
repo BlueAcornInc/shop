@@ -74,8 +74,8 @@ To use this block, configure the following in the `configs` sheet.
 
 | Path                | Value                                                                                   |
 |---------------------|-----------------------------------------------------------------------------------------|
-| yotpo.instance-id   | https://cdn-widgetsrepository.yotpo.com/v1/loader/2DscstHDudRbdPAOzC5foy1bLIBMZjhtyDjmsDJq |
-| yotpo.url           | 1039593                                                                                 |
+| yotpo-instance-id   | required for block to display correctly i.e. 1039593 |
+| yotpo-config-url          |    url for configuration, optional      |
 ## To Do
 
 - [ ] Verify the Yotpo instance ID and URL in the `configs` sheet and make this block reference them, they are currently hardcoded.

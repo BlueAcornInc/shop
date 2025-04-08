@@ -16,11 +16,13 @@ export default async function decorate(block) {
     currency: await getConfigValue('commerce-base-currency-code'),
   };
 
+  const yotpoInstanceId = await getConfigValue('yotpo-instance-id');
+
   const widgetConfig = [
     // To Do, To-Do. Remove hard-coded yotpo-instance-id. I requested this be added to the Admin UI for Yotpo Config Editor.
-    { attr: 'data-yotpo-instance-id', value: '1039593' },
+    { attr: 'data-yotpo-instance-id', value: yotpoInstanceId },
     { attr: 'data-yotpo-product-id', value: window.location.pathname.slice(window.location.pathname.lastIndexOf('/') + 1) },
-    { attr: 'data-yotpo-name', value: 'evergreen' },
+    { attr: 'data-yotpo-name', value: document.querySelector('div.pdp-header__title').innerText },
     { attr: 'data-yotpo-url', value: window.location.toString() },
     { attr: 'data-yotpo-image-url', value: `https:${document.querySelector('.pdp-carousel__slide>img')?.getAttribute('src')}` },
     { attr: 'data-yotpo-price', value: document.querySelector('.dropin-price')?.innerText?.slice(1) },
@@ -28,6 +30,8 @@ export default async function decorate(block) {
     { attr: 'class', value: 'yotpo-widget-instance' },
   ];
 
+  console.log('test', widgetConfig);
+  
   const addLoaderScript = ({ loaderScriptUrl }) => {
     loadScript(loaderScriptUrl);
     buildBlock(widgetConfig);
