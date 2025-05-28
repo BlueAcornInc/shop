@@ -187,3 +187,42 @@ curl -i -X POST "https://admin.hlx.page/preview/$AEM_ORG/$AEM_REPO/$AEM_REF/*" \
     "delete": true
 }'
 ```
+
+## Add an Administrator
+
+
+```bash
+
+curl -i -X POST "https://admin.hlx.page/config/$AEM_ORG/users.json" \
+  -H 'content-type: application/json' \
+  --header "Cookie: auth_token=$AUTH_TOKEN" \
+  --data '{
+  "email": "harsh.lele@blueacornici.com",
+  "roles": [
+    "config_admin"
+  ]
+}'
+
+```
+
+## List All Org Users
+
+```bash
+curl -i --header "Cookie: auth_token=$AUTH_TOKEN" https://admin.hlx.page/config/$AEM_ORG/users.json
+```
+
+## Delete a Administrator
+
+
+```bash
+export AEM_USERID=Ri7iFMdgWuvYJlMhoLA3sw
+```
+
+Then run... 
+
+```bash
+
+curl -i -X DELETE "https://admin.hlx.page/config/$AEM_ORG/users/$AEM_USERID.json" \
+  -H 'content-type: application/json' \
+  --header "Cookie: auth_token=$AUTH_TOKEN" 
+```
