@@ -1,8 +1,11 @@
 {
 	"name": "blueacornici.shop",
 
-	"dockerComposeFile": "docker-compose.yml",
-	"service": "app",
+	// "dockerComposeFile": "docker-compose.yml",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	// "service": "app",
 		
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
