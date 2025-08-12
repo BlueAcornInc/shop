@@ -30,7 +30,7 @@ export default async function decorate(block) {
   const widgetConfig = [
     // instanceId will be added after fetching config
     { attr: 'data-yotpo-product-id', value: window.location.pathname.slice(window.location.pathname.lastIndexOf('/') + 1) },
-    { attr: 'data-yotpo-name', value: 'evergreen' },
+    { attr: 'data-yotpo-name', value: document.querySelector('div.pdp-header__title')?.innerText || 'Product' },
     { attr: 'data-yotpo-url', value: window.location.toString() },
     { attr: 'data-yotpo-image-url', value: `https:${document.querySelector('.pdp-carousel__slide>img')?.getAttribute('src')}` },
     { attr: 'data-yotpo-price', value: document.querySelector('.dropin-price')?.innerText?.slice(1) },
