@@ -8,8 +8,6 @@ export default async function decorate(block) {
       yotpoReviewsEl.setAttribute(config.attr, config.value);
     });
 
-    console.log('config before addition: ' + JSON.stringify(configs))
-
     if (status !== 'off') {
       block.appendChild(yotpoReviewsEl);
       if (window.yotpoWidgetsContainer && typeof window.yotpoWidgetsContainer.initWidgets === 'function') {
@@ -28,7 +26,6 @@ export default async function decorate(block) {
   };
 
   const widgetConfig = [
-    // instanceId will be added after fetching config
     { attr: 'data-yotpo-product-id', value: window.location.pathname.slice(window.location.pathname.lastIndexOf('/') + 1) },
     { attr: 'data-yotpo-name', value: document.querySelector('div.pdp-header__title')?.innerText || 'Product' },
     { attr: 'data-yotpo-url', value: window.location.toString() },
@@ -39,9 +36,7 @@ export default async function decorate(block) {
   ];
 
   const addLoaderScript = ({ loaderScriptUrl }) => {
-    console.log("loadscripturl: " + loaderScriptUrl)
     loadScript(loaderScriptUrl);
-    // buildBlock will be called after instanceId is added
   };
 
   fetch(config?.endpoint)
