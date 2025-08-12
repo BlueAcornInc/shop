@@ -2,7 +2,7 @@ import { getConfigValue } from '../../scripts/configs.js';
 import { loadScript } from '../../scripts/aem.js';
 
 export default async function decorate(block) {
-  const buildBlock = (configs) => {
+  const buildBlock = (configs, status) => {
     const yotpoReviewsEl = document.createElement('div');
     configs?.forEach((config) => {
       yotpoReviewsEl.setAttribute(config.attr, config.value);
@@ -10,9 +10,16 @@ export default async function decorate(block) {
 
     console.log('config before addition: ' + JSON.stringify(configs))
 
-    block.appendChild(yotpoReviewsEl);
-
-    yotpoWidgetsContainer.initWidgets();
+    if (status !== 'off') {
+      block.appendChild(yotpoReviewsEl);
+      if (window.yotpoWidgetsContainer && typeof window.yotpoWidgetsContainer.initWidgets === 'function') {
+        window.yotpoWidgetsContainer.initWidgets();
+      } else {
+        console.warn('yotpoWidgetsContainer.initWidgets is not available');
+      }
+    } else {
+      console.log('Yotpo widget status is off, skipping block append and widget init.');
+    }
   };
   const config = {
     baseUrl: 'https://cdn-widgetsrepository.yotpo.com/v1/loader',
@@ -50,7 +57,7 @@ export default async function decorate(block) {
       // Add instanceId to widgetConfig and then buildBlock
       widgetConfig.unshift({ attr: 'data-yotpo-instance-id', value: data?.instanceId });
       addLoaderScript(config);
-      buildBlock(widgetConfig);
+  buildBlock(widgetConfig, data?.status);
       console.log('Yotpo config data:', data);
       console.log('Updated widgetConfig:', JSON.stringify(widgetConfig));
     })
