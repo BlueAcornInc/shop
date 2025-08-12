@@ -9,12 +9,14 @@ export default async function decorate(block) {
     });
     block.appendChild(yotpoReviewsEl);
   };
-
+console.log('here');
   const config = {
     baseUrl: 'https://cdn-widgetsrepository.yotpo.com/v1/loader',
     endpoint: await getConfigValue('yotpo-config-url'),
     currency: await getConfigValue('commerce-base-currency-code'),
   };
+
+  console.log(config);
 
   const widgetConfig = [
     // To Do, To-Do. Remove hard-coded yotpo-instance-id. I requested this be added to the Admin UI for Yotpo Config Editor.
@@ -28,9 +30,17 @@ export default async function decorate(block) {
     { attr: 'class', value: 'yotpo-widget-instance' },
   ];
 
+  console.log(widgetConfig);
+
   const addLoaderScript = ({ loaderScriptUrl }) => {
+    console.log("loadscripturl: " + loaderScriptUrl)
     loadScript(loaderScriptUrl);
     buildBlock(widgetConfig);
+    if (window.yotpoWidgetsContainer && typeof window.yotpoWidgetsContainer.initWidgets === 'function') {
+      window.yotpoWidgetsContainer.initWidgets();
+    } else {
+      console.warn('yotpoWidgetsContainer.initWidgets is not available');
+    }
   };
 
   fetch(config?.endpoint)
@@ -42,8 +52,10 @@ export default async function decorate(block) {
     })
     .then((data) => {
       config.data = data?.config;
-      config.loaderScriptUrl = `${config?.baseUrl}/${data?.config?.appKey}`;
+      console.log('my config: ' + data.appKey)
+      config.loaderScriptUrl = `${config?.baseUrl}/${data?.appKey}`;
       addLoaderScript(config);
+      console.log('Yotpo config data:', data);
     })
     .catch((error) => {
       console.error('Fetch error:', error);
