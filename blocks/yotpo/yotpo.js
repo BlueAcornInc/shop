@@ -7,20 +7,21 @@ export default async function decorate(block) {
     configs?.forEach((config) => {
       yotpoReviewsEl.setAttribute(config.attr, config.value);
     });
+
+    console.log('config before addition: ' + JSON.stringify(configs))
+
     block.appendChild(yotpoReviewsEl);
+
+    yotpoWidgetsContainer.initWidgets();
   };
-console.log('here');
   const config = {
     baseUrl: 'https://cdn-widgetsrepository.yotpo.com/v1/loader',
     endpoint: await getConfigValue('yotpo-config-url'),
     currency: await getConfigValue('commerce-base-currency-code'),
   };
 
-  console.log(config);
-
   const widgetConfig = [
-    // To Do, To-Do. Remove hard-coded yotpo-instance-id. I requested this be added to the Admin UI for Yotpo Config Editor.
-    { attr: 'data-yotpo-instance-id', value: '1039593' },
+    // instanceId will be added after fetching config
     { attr: 'data-yotpo-product-id', value: window.location.pathname.slice(window.location.pathname.lastIndexOf('/') + 1) },
     { attr: 'data-yotpo-name', value: 'evergreen' },
     { attr: 'data-yotpo-url', value: window.location.toString() },
@@ -30,17 +31,10 @@ console.log('here');
     { attr: 'class', value: 'yotpo-widget-instance' },
   ];
 
-  console.log(widgetConfig);
-
   const addLoaderScript = ({ loaderScriptUrl }) => {
     console.log("loadscripturl: " + loaderScriptUrl)
     loadScript(loaderScriptUrl);
-    buildBlock(widgetConfig);
-    if (window.yotpoWidgetsContainer && typeof window.yotpoWidgetsContainer.initWidgets === 'function') {
-      window.yotpoWidgetsContainer.initWidgets();
-    } else {
-      console.warn('yotpoWidgetsContainer.initWidgets is not available');
-    }
+    // buildBlock will be called after instanceId is added
   };
 
   fetch(config?.endpoint)
@@ -52,10 +46,13 @@ console.log('here');
     })
     .then((data) => {
       config.data = data?.config;
-      console.log('my config: ' + data.appKey)
       config.loaderScriptUrl = `${config?.baseUrl}/${data?.appKey}`;
+      // Add instanceId to widgetConfig and then buildBlock
+      widgetConfig.unshift({ attr: 'data-yotpo-instance-id', value: data?.instanceId });
       addLoaderScript(config);
+      buildBlock(widgetConfig);
       console.log('Yotpo config data:', data);
+      console.log('Updated widgetConfig:', JSON.stringify(widgetConfig));
     })
     .catch((error) => {
       console.error('Fetch error:', error);
