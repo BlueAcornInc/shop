@@ -3,20 +3,25 @@ import { loadScript } from "../../scripts/aem.js";
 
 export default async function decorate(block) {
   const buildBlock = (configs, status) => {
-    const yotpoReviewsEl = document.createElement('div');
+    const yotpoReviewsEl = document.createElement("div");
     configs?.forEach((config) => {
       yotpoReviewsEl.setAttribute(config.attr, config.value);
     });
 
-    if (status !== 'off') {
+    if (status !== "off") {
       block.appendChild(yotpoReviewsEl);
-      if (window.yotpoWidgetsContainer && typeof window.yotpoWidgetsContainer.initWidgets === 'function') {
+      if (
+        window.yotpoWidgetsContainer &&
+        typeof window.yotpoWidgetsContainer.initWidgets === "function"
+      ) {
         window.yotpoWidgetsContainer.initWidgets();
       } else {
-        console.warn('yotpoWidgetsContainer.initWidgets is not available');
+        console.warn("yotpoWidgetsContainer.initWidgets is not available");
       }
     } else {
-      console.log('Yotpo widget status is off, skipping block append and widget init.');
+      console.log(
+        "Yotpo widget status is off, skipping block append and widget init.",
+      );
     }
   };
   const config = {
@@ -26,13 +31,28 @@ export default async function decorate(block) {
   };
 
   const widgetConfig = [
-    { attr: 'data-yotpo-product-id', value: window.location.pathname.slice(window.location.pathname.lastIndexOf('/') + 1) },
-    { attr: 'data-yotpo-name', value: document.querySelector('div.pdp-header__title')?.innerText || 'Product' },
-    { attr: 'data-yotpo-url', value: window.location.toString() },
-    { attr: 'data-yotpo-image-url', value: `https:${document.querySelector('.pdp-carousel__slide>img')?.getAttribute('src')}` },
-    { attr: 'data-yotpo-price', value: document.querySelector('.dropin-price')?.innerText?.slice(1) },
-    { attr: 'data-yotpo-currency', value: config.currency },
-    { attr: 'class', value: 'yotpo-widget-instance' },
+    {
+      attr: "data-yotpo-product-id",
+      value: window.location.pathname.slice(
+        window.location.pathname.lastIndexOf("/") + 1,
+      ),
+    },
+    {
+      attr: "data-yotpo-name",
+      value:
+        document.querySelector("div.pdp-header__title")?.innerText || "Product",
+    },
+    { attr: "data-yotpo-url", value: window.location.toString() },
+    {
+      attr: "data-yotpo-image-url",
+      value: `https:${document.querySelector(".pdp-carousel__slide>img")?.getAttribute("src")}`,
+    },
+    {
+      attr: "data-yotpo-price",
+      value: document.querySelector(".dropin-price")?.innerText?.slice(1),
+    },
+    { attr: "data-yotpo-currency", value: config.currency },
+    { attr: "class", value: "yotpo-widget-instance" },
   ];
 
   const addLoaderScript = ({ loaderScriptUrl }) => {
@@ -50,11 +70,14 @@ export default async function decorate(block) {
       config.data = data?.config;
       config.loaderScriptUrl = `${config?.baseUrl}/${data?.appKey}`;
       // Add instanceId to widgetConfig and then buildBlock
-      widgetConfig.unshift({ attr: 'data-yotpo-instance-id', value: data?.instanceId });
+      widgetConfig.unshift({
+        attr: "data-yotpo-instance-id",
+        value: data?.instanceId,
+      });
       addLoaderScript(config);
-  buildBlock(widgetConfig, data?.status);
-      console.log('Yotpo config data:', data);
-      console.log('Updated widgetConfig:', JSON.stringify(widgetConfig));
+      buildBlock(widgetConfig, data?.status);
+      console.log("Yotpo config data:", data);
+      console.log("Updated widgetConfig:", JSON.stringify(widgetConfig));
     })
     .catch((error) => {
       console.error("Fetch error:", error);
