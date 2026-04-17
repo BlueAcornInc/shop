@@ -27,10 +27,10 @@ export default async function decorate(block) {
   const updateBlock = (store, stockData) => {
     if (stockData.inStock) {
       productAvailabilityEl.innerText = stockData.lowStock
-        ? "In-store stock: Low stock"
-        : "In-store stock: In stock";
+        ? "Low Stock"
+        : "In Stock";
     } else {
-      productAvailabilityEl.innerText = "In-store stock: Out of stock";
+      productAvailabilityEl.innerText = "Out of Stock";
     }
     storeEl.innerText = `Shopping from store #${store.number}.`;
     storeAddressEl.innerText = `${store.address}\n ${store.city}, ${store.state} ${store.zip}`;
@@ -93,12 +93,10 @@ export default async function decorate(block) {
       storeEl.classList.remove("hidden");
       storeAddressEl.classList.remove("hidden");
     } else if (myStore) {
-      productAvailabilityEl.innerText =
-        "In-store stock: unavailable for this store.";
+      productAvailabilityEl.innerText = "Unavailable";
       productAvailabilityEl.classList.remove("hidden");
     } else {
-      productAvailabilityEl.innerText =
-        "In-store stock: unknown. No store selected.";
+      productAvailabilityEl.innerText = "No store selected.";
       productAvailabilityEl.classList.remove("hidden");
     }
   };
