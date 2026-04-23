@@ -1,20 +1,11 @@
 {
 	"name": "blueacornici.shop",
 
-	// "dockerComposeFile": "docker-compose.yml",
-	"build": {
-		"dockerfile": "Dockerfile",
-		"args": {
-			"USE_JFROG": "${localEnv:USE_JFROG:true}"
-		}
-	},
-	// "service": "app",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "app",
 
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-
-	"containerEnv": {
-		"JFROG_TOKEN": "${localEnv:JFROG_TOKEN}"
-	},
+	"shutdownAction": "stopCompose",
 
 	"postCreateCommand": "npm install",
 	"postAttachCommand": "npx aem up $AEM_PARAMS",

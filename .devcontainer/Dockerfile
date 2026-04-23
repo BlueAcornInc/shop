@@ -1,4 +1,8 @@
-FROM mcr.microsoft.com/devcontainers/base:bullseye
+# Base image selected via build arg. Defaults to the public Microsoft registry;
+# BAC devs set BASE_IMAGE in .devcontainer/.env (see .env.jfrog) to pull from
+# the JFrog mirror (groupinfosys.jfrog.io/bls-mcr-microsoft-remote/...).
+ARG BASE_IMAGE=mcr.microsoft.com/devcontainers/base:bullseye
+FROM ${BASE_IMAGE}
 
 # Optional Zscaler CA — export on macOS with:
 #   security find-certificate -a -c "Zscaler" -p /Library/Keychains/System.keychain \

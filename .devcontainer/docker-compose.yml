@@ -1,16 +1,17 @@
-version: '3.8'
-
 services:
   app:
+    env_file: .env
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        - NODE_VERSION=20
+        BASE_IMAGE: ${BASE_IMAGE:-mcr.microsoft.com/devcontainers/base:bullseye}
+        USE_JFROG: ${USE_JFROG:-false}
     entrypoint: sleep infinity
+    environment:
+      - JFROG_TOKEN=${JFROG_TOKEN:-}
+      - AEM_PARAMS=${AEM_PARAMS:---url https://main--shop-summit--blueacorninc.aem.live}
     volumes:
       - ../..:/workspaces:cached
-  cors-anywhere:
-    image: tlan16/cors-anywhere
     ports:
-      - "8080:8080"
+      - "3000:3000"
