@@ -1,10 +1,12 @@
-# Base image selected via build arg. Defaults to the public Microsoft registry;
-# BAC devs set BASE_IMAGE in .devcontainer/.env (see .env.jfrog) to pull from
-# the JFrog mirror (groupinfosys.jfrog.io/bls-mcr-microsoft-remote/...).
+# Base image selected via build arg. Defaults in docker-compose.yml to the
+# BAC JFrog mirror; external contributors can override via BASE_IMAGE env
+# (e.g. BASE_IMAGE=mcr.microsoft.com/devcontainers/base:bullseye).
 ARG BASE_IMAGE=mcr.microsoft.com/devcontainers/base:bullseye
 FROM ${BASE_IMAGE}
 
-# Optional Zscaler CA — export on macOS with:
+# Optional Zscaler CA. Either:
+#   ln -sf ~/.ssl/combined-ca.pem .devcontainer/zscaler.crt   (preferred)
+# or export via:
 #   security find-certificate -a -c "Zscaler" -p /Library/Keychains/System.keychain \
 #     > .devcontainer/zscaler.crt
 # The bracket glob makes the copy a no-op if the file is absent.
@@ -16,11 +18,6 @@ RUN if [ -f /tmp/zscaler.crt ]; then \
 
 # Node/npm trust the system CA bundle (including Zscaler if installed above).
 ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
-
-# JFrog routing. Set USE_JFROG=true in build args to route npm through the
-# BAC JFrog mirror; token is resolved at runtime from ${JFROG_TOKEN}, not
-# baked into the image.
-ARG USE_JFROG=false
 
 # Install php-fpm
 # RUN curl -sS https://packages.sury.org/php/apt.gpg | apt-key add - \
@@ -75,14 +72,14 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | b
 ENV NODE_PATH $NVM_DIR/versions/node/$NODE_VERSION/lib/node_modules
 ENV PATH      $NVM_DIR/versions/node/$NODE_VERSION/bin:$PATH
 
-# JFrog .npmrc — uses ${JFROG_TOKEN} so npm resolves the token from the shell
-# env at read time; no build-time substitution, nothing sensitive baked in.
+# JFrog .npmrc — uses ${JFROG_TOKEN} so npm resolves the token from the
+# runtime env at read time; no build-time substitution, nothing sensitive
+# baked in. Always installed; if JFROG_TOKEN is empty at npm-install time,
+# the registry returns 401 — loud failure, not a silent one.
 COPY .npmrc.jfrog /tmp/.npmrc.jfrog
-RUN if [ "${USE_JFROG}" = "true" ]; then \
-      sudo cp /tmp/.npmrc.jfrog /home/vscode/.npmrc && \
-      sudo chown vscode:vscode /home/vscode/.npmrc && \
-      sudo chmod 600 /home/vscode/.npmrc; \
-    fi && \
+RUN sudo cp /tmp/.npmrc.jfrog /home/vscode/.npmrc && \
+    sudo chown vscode:vscode /home/vscode/.npmrc && \
+    sudo chmod 600 /home/vscode/.npmrc && \
     sudo rm -f /tmp/.npmrc.jfrog
 
 RUN export NVM_DIR="$HOME/.nvm" && \. "$NVM_DIR/nvm.sh" && \

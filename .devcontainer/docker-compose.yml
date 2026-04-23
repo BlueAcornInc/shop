@@ -1,14 +1,22 @@
 services:
   app:
-    env_file: .env
+    # .env is optional — BA devs with JFROG_TOKEN in ~/.env (via ~/.zshenv) can
+    # open the devcontainer without any project-local config. Override any of
+    # the defaults below by setting them in .env or in your shell env.
+    env_file:
+      - path: .env
+        required: false
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        BASE_IMAGE: ${BASE_IMAGE:-mcr.microsoft.com/devcontainers/base:bullseye}
-        USE_JFROG: ${USE_JFROG:-false}
+        # Default base image is the JFrog mirror. Override with BASE_IMAGE env
+        # var if you're outside BAC (e.g. mcr.microsoft.com/devcontainers/base).
+        BASE_IMAGE: ${BASE_IMAGE:-groupinfosys.jfrog.io/bls-mcr-microsoft-remote/devcontainers/base:bullseye}
     entrypoint: sleep infinity
     environment:
+      # JFROG_TOKEN is resolved by npm at read-time from ~/.npmrc (see
+      # .npmrc.jfrog). Sourced from host shell env (typically ~/.env).
       - JFROG_TOKEN=${JFROG_TOKEN:-}
       - AEM_PARAMS=${AEM_PARAMS:---url https://main--shop-summit--blueacorninc.aem.live}
     volumes:
