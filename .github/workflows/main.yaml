@@ -10,6 +10,16 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 20
+    # Authenticate git clones to sibling private BA-org repos (the
+    # @blueacorn/aem-commerce-theme-summit theme dep and any future
+    # github: deps). BAC_BOT_PAT is a repo secret; default secrets.GITHUB_TOKEN
+    # only scopes to this repo, not org-siblings.
+    - name: Configure git for BA-org private deps
+      run: |
+        git config --global url."https://x-access-token:${BAC_BOT_PAT}@github.com/".insteadOf "ssh://git@github.com/"
+        git config --global url."https://x-access-token:${BAC_BOT_PAT}@github.com/".insteadOf "git@github.com:"
+      env:
+        BAC_BOT_PAT: ${{ secrets.BAC_BOT_PAT }}
     # `npm install` (not `npm ci`) because package-lock.json is gitignored —
     # BAC devs install through JFrog's bac-npm-remote, which resolves to
     # different URLs/shasums than public npm. Committing a JFrog-flavored
