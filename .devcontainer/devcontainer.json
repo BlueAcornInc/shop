@@ -7,8 +7,10 @@
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"shutdownAction": "stopCompose",
 
-	"postCreateCommand": "bash .devcontainer/post-create.sh",
-	"postAttachCommand": "npx aem up $AEM_PARAMS",
+	// setup.sh runs on every attach so you can see its output in the terminal
+	// (and re-running is cheap — every step is idempotent). It ends with
+	// `aem up` so the storefront launches in the same command.
+	"postAttachCommand": "bash .devcontainer/setup.sh && npx aem up $AEM_PARAMS",
 
 	"forwardPorts": [3000],
 	"customizations": {
