@@ -1,15 +1,45 @@
 # Base image selected via build arg. Defaults in docker-compose.yml to the
-# BAC JFrog mirror; external contributors can override via BASE_IMAGE env
-# (e.g. BASE_IMAGE=mcr.microsoft.com/devcontainers/base:bullseye).
-ARG BASE_IMAGE=mcr.microsoft.com/devcontainers/base:bullseye
+# BAC JFrog mirror of devcontainers/javascript-node (Node + npm + nvm
+# preinstalled, user `node`).
+ARG BASE_IMAGE=mcr.microsoft.com/devcontainers/javascript-node:20-bullseye
 FROM ${BASE_IMAGE}
 
-# Optional Zscaler CA. Either:
-#   ln -sf ~/.ssl/combined-ca.pem .devcontainer/zscaler.crt   (preferred)
-# or export via:
-#   security find-certificate -a -c "Zscaler" -p /Library/Keychains/System.keychain \
-#     > .devcontainer/zscaler.crt
-# The bracket glob makes the copy a no-op if the file is absent.
+# JFrog proxy — rewrite apt sources BEFORE any apt-get call so Debian package
+# pulls route through the BAC JFrog mirror (deb.debian.org is Zscaler-blocked).
+# JFROG_TOKEN comes in via a BuildKit secret so it doesn't land in build-args
+# / image history. The auth.conf file still persists in the final image (apt
+# needs it at install time); rotate tokens regularly.
+ARG USE_JFROG=false
+ARG JFROG_HOST=groupinfosys.jfrog.io
+ARG JFROG_USER
+RUN --mount=type=secret,id=jfrog_token,target=/run/secrets/jfrog_token \
+    if [ "$USE_JFROG" = "true" ]; then \
+      if [ -z "$JFROG_USER" ] || [ ! -s /run/secrets/jfrog_token ]; then \
+        echo "USE_JFROG=true requires JFROG_USER and JFROG_TOKEN (export both in ~/.env)" >&2; exit 1; \
+      fi; \
+      JFROG_TOKEN="$(cat /run/secrets/jfrog_token)"; \
+      if [ -f /etc/apt/sources.list ] && grep -q 'deb.debian.org' /etc/apt/sources.list; then \
+        sed -i "s|http://deb.debian.org/debian-security|https://${JFROG_HOST}/artifactory/bls-deb-debian-remote/debian-security|g" /etc/apt/sources.list && \
+        sed -i "s|http://deb.debian.org/debian|https://${JFROG_HOST}/artifactory/bls-deb-org-debian-remote|g" /etc/apt/sources.list && \
+        sed -i "s|http://security.debian.org|https://${JFROG_HOST}/artifactory/bls-deb-debian-remote/debian-security|g" /etc/apt/sources.list; \
+      fi && \
+      for f in /etc/apt/sources.list.d/*.sources; do \
+        [ -f "$f" ] && \
+        sed -i "s|http://deb.debian.org/debian-security|https://${JFROG_HOST}/artifactory/bls-deb-debian-remote/debian-security|g" "$f" && \
+        sed -i "s|http://deb.debian.org/debian|https://${JFROG_HOST}/artifactory/bls-deb-org-debian-remote|g" "$f" && \
+        sed -i "s|http://security.debian.org|https://${JFROG_HOST}/artifactory/bls-deb-debian-remote/debian-security|g" "$f"; \
+      done || true; \
+      echo "machine ${JFROG_HOST} login ${JFROG_USER} password ${JFROG_TOKEN}" > /etc/apt/auth.conf && \
+      chmod 600 /etc/apt/auth.conf; \
+    fi
+
+# Optional Zscaler CA. Copy the host system bundle into place so the Dockerfile
+# picks it up at build time:
+#
+#   cp -L ~/.ssl/combined-ca.pem .devcontainer/zscaler.crt
+#
+# (Symlinks don't work — Docker build context won't follow them.)
+# The bracket glob makes the COPY a no-op if the file is absent.
 COPY ./zscaler.cr[t] /tmp/
 RUN if [ -f /tmp/zscaler.crt ]; then \
       cp /tmp/zscaler.crt /usr/local/share/ca-certificates/zscaler.crt && \
@@ -19,81 +49,39 @@ RUN if [ -f /tmp/zscaler.crt ]; then \
 # Node/npm trust the system CA bundle (including Zscaler if installed above).
 ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 
-# Install php-fpm
-# RUN curl -sS https://packages.sury.org/php/apt.gpg | apt-key add - \
-#     && echo "deb https://packages.sury.org/php/ bullseye main" | tee /etc/apt/sources.list.d/php.list
-
-RUN curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
-  sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg && \
-  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | \
-  sudo tee /etc/apt/sources.list.d/1password.list && \
-  sudo mkdir -p /etc/debsig/policies/AC2D62742012EA22/ && \
-  curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | \
-  sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol && \
-  sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22 && \
-  curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
-  sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg
-
 RUN apt-get update && apt-get install -y \
     libzip-dev \
     git \
     unzip \
     wget \
     sudo \
-    \
-    libnss3-tools\
+    libnss3-tools \
     inotify-tools \
-    \
-    1password-cli \
-     \
     && apt clean
-
-#installs mkcert
-# RUN curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
-# RUN chmod +x mkcert-v*-linux-amd64
-# RUN sudo cp mkcert-v*-linux-amd64 /usr/local/bin/mkcert
 
 RUN mkdir -p ~/.ssh/
 RUN curl -L https://api.github.com/meta | jq -r '.ssh_keys | .[]' | sed -e 's/^/github.com /' >> ~/.ssh/known_hosts
 RUN curl https://bitbucket.org/site/ssh >> ~/.ssh/known_hosts
 
-
-USER vscode
-
-ARG NODE_VERSION=--lts
-
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash && \
-    export NVM_DIR="$HOME/.nvm" && \
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
-    nvm install $NODE_VERSION && \
-    nvm use $NODE_VERSION && \
-    npm install -g npm@latest
-
-ENV NODE_PATH $NVM_DIR/versions/node/$NODE_VERSION/lib/node_modules
-ENV PATH      $NVM_DIR/versions/node/$NODE_VERSION/bin:$PATH
+# javascript-node image ships `node` as the non-root user (not `vscode`).
+USER node
 
 # JFrog .npmrc — uses ${JFROG_TOKEN} so npm resolves the token from the
 # runtime env at read time; no build-time substitution, nothing sensitive
 # baked in. Always installed; if JFROG_TOKEN is empty at npm-install time,
 # the registry returns 401 — loud failure, not a silent one.
-COPY .npmrc.jfrog /tmp/.npmrc.jfrog
-RUN sudo cp /tmp/.npmrc.jfrog /home/vscode/.npmrc && \
-    sudo chown vscode:vscode /home/vscode/.npmrc && \
-    sudo chmod 600 /home/vscode/.npmrc && \
-    sudo rm -f /tmp/.npmrc.jfrog
+COPY --chown=node:node .npmrc.jfrog /home/node/.npmrc
+RUN chmod 600 /home/node/.npmrc
 
-RUN export NVM_DIR="$HOME/.nvm" && \. "$NVM_DIR/nvm.sh" && \
-    npm install -g @adobe/aio-cli
-
-RUN export NVM_DIR="$HOME/.nvm" && \. "$NVM_DIR/nvm.sh" && \
-    aio telemetry yes && \
-    aio plugins:install @adobe/aio-cli-plugin-api-mesh
-
-RUN export NVM_DIR="$HOME/.nvm" && \. "$NVM_DIR/nvm.sh" && \
-    aio telemetry yes && \
-    aio plugins:install @adobe/aio-cli-plugin-api-mesh && \
-    aio plugins:install https://github.com/adobe-commerce/aio-cli-plugin-commerce
-
+# aio-cli is NOT installed at build time — it would need JFROG_TOKEN baked in
+# (or smuggled via a secret mount for every global npm). Easier to let devs
+# install aio via postCreateCommand or on demand:
+#
+#   npm install -g @adobe/aio-cli
+#   aio plugins:install @adobe/aio-cli-plugin-api-mesh
+#   aio plugins:install https://github.com/adobe-commerce/aio-cli-plugin-commerce
+#
+# JFROG_TOKEN is already in the runtime container env, so these just work.
 
 RUN echo 'export PATH="$(pwd)/.devcontainer/bin:$PATH"' >> ~/.bashrc
 RUN echo 'export PATH="$(pwd)/aio/bin:$PATH"' >> ~/.bashrc

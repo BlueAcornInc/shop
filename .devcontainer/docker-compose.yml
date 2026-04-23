@@ -10,16 +10,36 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        # Default base image is the JFrog mirror. Override with BASE_IMAGE env
-        # var if you're outside BAC (e.g. mcr.microsoft.com/devcontainers/base).
-        BASE_IMAGE: ${BASE_IMAGE:-groupinfosys.jfrog.io/bls-mcr-microsoft-remote/devcontainers/base:bullseye}
+        # Default base image is the JFrog mirror of javascript-node (Node +
+        # npm + nvm preinstalled as the vscode user). Override with BASE_IMAGE
+        # env var if you're outside BAC.
+        BASE_IMAGE: ${BASE_IMAGE:-groupinfosys.jfrog.io/bls-mcr-microsoft-remote/devcontainers/javascript-node:20-bullseye}
+        # apt-over-JFrog: rewrites /etc/apt/sources.list to pull Debian packages
+        # through the BAC JFrog mirror (deb.debian.org is Zscaler-blocked).
+        # USE_JFROG defaults to true since shop is BA-internal; external
+        # contributors override via shell env.
+        USE_JFROG: ${USE_JFROG:-true}
+        JFROG_HOST: ${JFROG_HOST:-groupinfosys.jfrog.io}
+        JFROG_USER: ${JFROG_USER:-}
+      # JFROG_TOKEN via BuildKit secret — doesn't land in build-args / image
+      # history. Dockerfile reads from /run/secrets/jfrog_token at build time.
+      secrets:
+        - jfrog_token
     entrypoint: sleep infinity
     environment:
       # JFROG_TOKEN is resolved by npm at read-time from ~/.npmrc (see
       # .npmrc.jfrog). Sourced from host shell env (typically ~/.env).
       - JFROG_TOKEN=${JFROG_TOKEN:-}
+      # GITHUB_TOKEN auths `github:` npm deps (private theme/block repos).
+      # Also from host ~/.env.
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
       - AEM_PARAMS=${AEM_PARAMS:---url https://main--shop-summit--blueacorninc.aem.live}
     volumes:
       - ../..:/workspaces:cached
     ports:
       - "3000:3000"
+
+secrets:
+  jfrog_token:
+    environment: JFROG_TOKEN
+
