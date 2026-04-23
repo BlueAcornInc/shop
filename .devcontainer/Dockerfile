@@ -1,4 +1,23 @@
 FROM mcr.microsoft.com/devcontainers/base:bullseye
+
+# Optional Zscaler CA — export on macOS with:
+#   security find-certificate -a -c "Zscaler" -p /Library/Keychains/System.keychain \
+#     > .devcontainer/zscaler.crt
+# The bracket glob makes the copy a no-op if the file is absent.
+COPY ./zscaler.cr[t] /tmp/
+RUN if [ -f /tmp/zscaler.crt ]; then \
+      cp /tmp/zscaler.crt /usr/local/share/ca-certificates/zscaler.crt && \
+      update-ca-certificates; \
+    fi
+
+# Node/npm trust the system CA bundle (including Zscaler if installed above).
+ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
+
+# JFrog routing. Set USE_JFROG=true in build args to route npm through the
+# BAC JFrog mirror; token is resolved at runtime from ${JFROG_TOKEN}, not
+# baked into the image.
+ARG USE_JFROG=false
+
 # Install php-fpm
 # RUN curl -sS https://packages.sury.org/php/apt.gpg | apt-key add - \
 #     && echo "deb https://packages.sury.org/php/ bullseye main" | tee /etc/apt/sources.list.d/php.list
@@ -51,6 +70,16 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | b
 
 ENV NODE_PATH $NVM_DIR/versions/node/$NODE_VERSION/lib/node_modules
 ENV PATH      $NVM_DIR/versions/node/$NODE_VERSION/bin:$PATH
+
+# JFrog .npmrc — uses ${JFROG_TOKEN} so npm resolves the token from the shell
+# env at read time; no build-time substitution, nothing sensitive baked in.
+COPY .npmrc.jfrog /tmp/.npmrc.jfrog
+RUN if [ "${USE_JFROG}" = "true" ]; then \
+      sudo cp /tmp/.npmrc.jfrog /home/vscode/.npmrc && \
+      sudo chown vscode:vscode /home/vscode/.npmrc && \
+      sudo chmod 600 /home/vscode/.npmrc; \
+    fi && \
+    sudo rm -f /tmp/.npmrc.jfrog
 
 RUN export NVM_DIR="$HOME/.nvm" && \. "$NVM_DIR/nvm.sh" && \
     npm install -g @adobe/aio-cli

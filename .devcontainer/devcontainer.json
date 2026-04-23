@@ -3,15 +3,22 @@
 
 	// "dockerComposeFile": "docker-compose.yml",
 	"build": {
-		"dockerfile": "Dockerfile"
+		"dockerfile": "Dockerfile",
+		"args": {
+			"USE_JFROG": "${localEnv:USE_JFROG:true}"
+		}
 	},
 	// "service": "app",
-		
+
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+	"containerEnv": {
+		"JFROG_TOKEN": "${localEnv:JFROG_TOKEN}"
+	},
 
 	"postCreateCommand": "npm install",
 	"postAttachCommand": "npx aem up $AEM_PARAMS",
-	
+
 	"forwardPorts": [3000],
 	"customizations": {
 		"vscode": {

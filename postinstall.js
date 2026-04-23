@@ -39,6 +39,29 @@ fs.readdirSync('node_modules/@dropins', { withFileTypes: true }).forEach((file) 
   fs.copyFileSync(path.resolve(__dirname, 'node_modules', file.from), path.resolve(__dirname, 'scripts', file.to));
 });
 
+// Install @blueacorn/aem-commerce-theme-summit into EDS-served paths
+const themeRoot = path.join('node_modules', '@blueacorn', 'aem-commerce-theme-summit', 'src');
+if (fs.existsSync(themeRoot)) {
+  const themeFileMap = [
+    { from: 'theme.js', to: path.join('scripts', 'theme.js') },
+    { from: 'theme-config.js', to: path.join('scripts', 'theme-config.js') },
+    { from: 'styles/blue-acorn-ici-theme.css', to: path.join('styles', 'blue-acorn-ici-theme.css') },
+    { from: 'styles/fonts.css', to: path.join('styles', 'fonts.css') },
+    { from: 'styles/lazy-styles.css', to: path.join('styles', 'lazy-styles.css') },
+  ];
+  themeFileMap.forEach(({ from, to }) => {
+    fs.copyFileSync(path.join(themeRoot, from), path.resolve(__dirname, to));
+  });
+  const blueacornDest = path.join('styles', 'blueacorn');
+  if (fs.existsSync(blueacornDest)) {
+    fs.rmSync(blueacornDest, { recursive: true });
+  }
+  fs.cpSync(path.join(themeRoot, 'styles', 'blueacorn'), blueacornDest, { recursive: true });
+  console.info('✅ @blueacorn/aem-commerce-theme-summit installed.');
+} else {
+  console.warn('⚠️  @blueacorn/aem-commerce-theme-summit not found in node_modules — skipping theme install.');
+}
+
 function checkPackageLockForArtifactory() {
   return new Promise((resolve, reject) => {
     fs.readFile('package-lock.json', 'utf8', (err, data) => {
