@@ -25,9 +25,9 @@ jobs:
       run: |
         echo "machine github.com login x-access-token password ${BAC_BOT_PAT}" > "$HOME/.netrc"
         chmod 600 "$HOME/.netrc"
-        git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
-        git config --global url."https://github.com/".insteadOf "git@github.com:"
-        git config --global url."https://github.com/".insteadOf "git+ssh://git@github.com/"
+        git config --global --add url."https://github.com/".insteadOf "ssh://git@github.com/"
+        git config --global --add url."https://github.com/".insteadOf "git@github.com:"
+        git config --global --add url."https://github.com/".insteadOf "git+ssh://git@github.com/"
         echo "== test BA-org access =="
         git ls-remote ssh://git@github.com/BlueAcornInc/aem-commerce-theme-summit.git HEAD
       env:
