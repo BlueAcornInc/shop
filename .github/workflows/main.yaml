@@ -14,10 +14,22 @@ jobs:
     # @blueacorn/aem-commerce-theme-summit theme dep and any future
     # github: deps). BAC_BOT_PAT is a repo secret; default secrets.GITHUB_TOKEN
     # only scopes to this repo, not org-siblings.
-    - name: Configure git for BA-org private deps
+    #
+    # Two layers: (1) netrc provides the credential for https://github.com
+    # so the PAT never appears in git config. (2) url.insteadOf rewrites every
+    # ssh-ish form npm might emit (`ssh://`, `git@:`, `git+ssh://`) to plain
+    # https, letting netrc handle auth. A trailing `git ls-remote` smoke-tests
+    # the setup so CI fails loudly here if the PAT is missing/wrong rather
+    # than with a confusing npm error three steps later.
+    - name: Authorize private BA-org deps
       run: |
-        git config --global url."https://x-access-token:${BAC_BOT_PAT}@github.com/".insteadOf "ssh://git@github.com/"
-        git config --global url."https://x-access-token:${BAC_BOT_PAT}@github.com/".insteadOf "git@github.com:"
+        echo "machine github.com login x-access-token password ${BAC_BOT_PAT}" > "$HOME/.netrc"
+        chmod 600 "$HOME/.netrc"
+        git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+        git config --global url."https://github.com/".insteadOf "git@github.com:"
+        git config --global url."https://github.com/".insteadOf "git+ssh://git@github.com/"
+        echo "== test BA-org access =="
+        git ls-remote ssh://git@github.com/BlueAcornInc/aem-commerce-theme-summit.git HEAD
       env:
         BAC_BOT_PAT: ${{ secrets.BAC_BOT_PAT }}
     # `npm install` (not `npm ci`) because package-lock.json is gitignored —
