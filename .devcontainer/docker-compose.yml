@@ -25,7 +25,23 @@ services:
       # history. Dockerfile reads from /run/secrets/jfrog_token at build time.
       secrets:
         - jfrog_token
+      # Forward the host's ssh-agent so `npm install` can clone git+ssh
+      # GitHub deps at build time (aio-cli pulls some transitives like
+      # devx-services/source-registry-storage-adapter via git+ssh). Uses
+      # $SSH_AUTH_SOCK from the host shell — on macOS with 1Password-SSH,
+      # that's ~/Library/Group Containers/...agent.sock. Required on BAC
+      # devs' machines.
+      ssh:
+        - default
     entrypoint: sleep infinity
+    # Override Docker Desktop's embedded DNS (192.168.65.7). Its forwarder can
+    # stall after VPN state changes (NordLayer reconnect, sleep/wake) and then
+    # every container lookup — jfrog for apt+npm, github, aem.live for the
+    # dev-server proxy — starts returning EAI_AGAIN. Pinning Cloudflare +
+    # Google avoids the stall; both resolve fine under Zscaler.
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     environment:
       # JFROG_TOKEN is resolved by npm at read-time from ~/.npmrc (see
       # .npmrc.jfrog). Sourced from host shell env (typically ~/.env).
@@ -34,6 +50,14 @@ services:
       # Also from host ~/.env.
       - GITHUB_TOKEN=${GITHUB_TOKEN:-}
       - AEM_PARAMS=${AEM_PARAMS:---url https://main--shop-summit--blueacorninc.aem.live}
+      # Host ssh-agent forwarded so `ssh`, `git push`, and npm's git+ssh
+      # deps all Just Work inside the container against the keys loaded on
+      # the host. On macOS with 1Password-SSH, $SSH_AUTH_SOCK on the host
+      # points to ~/Library/Group Containers/.../agent.sock; we bind-mount
+      # that directly (Docker Desktop's /run/host-services path only forwards
+      # the system ssh-agent, which doesn't know about 1Password's keys).
+      # Setup.sh chmods the socket so the non-root `node` user can read it.
+      - SSH_AUTH_SOCK=/tmp/ssh-agent.sock
     volumes:
       - ../..:/workspaces:cached
       # Persist the npm cache across container recreates. First install of a
@@ -41,6 +65,10 @@ services:
       # second install reuses them and skips the network round-trip. Survives
       # `docker compose down` + rebuild.
       - npm-cache:/home/node/.npm
+      # Bind host $SSH_AUTH_SOCK → /tmp/ssh-agent.sock. Requires the path to
+      # be within Docker Desktop's shared folders (~ is shared by default on
+      # macOS, so 1Password's socket under ~/Library/... is accessible).
+      - ${SSH_AUTH_SOCK:-/dev/null}:/tmp/ssh-agent.sock
     ports:
       - "3000:3000"
 

@@ -2,13 +2,31 @@
 # Runs on every container attach — output is visible in the attached VS Code
 # terminal, and re-running is cheap because each step is idempotent.
 #
-# - GitHub HTTPS auth so private github: npm deps resolve without SSH
+# - ssh-agent forwarding + github.com auth so npm git+ssh deps resolve and
+#   the user can `git push` against ssh remotes with their host keys
 # - npm install + install:dropins (theme files land in styles/ + scripts/)
 # - aio-cli + plugins for aio/<app> development (one-time, skipped on reruns)
 set -eo pipefail
 
-echo "→ configuring git + netrc for github.com"
-if [ -n "${GITHUB_TOKEN:-}" ]; then
+# Host ssh-agent arrives via bind-mount (see docker-compose.yml). Socket is
+# root-owned because Docker Desktop doesn't remap uids for bind-mounts, so
+# the non-root `node` user needs a chmod. Once accessible, both `git push`
+# against ssh remotes and npm's git+ssh deps (github:org/repo) work natively.
+if [ -S /tmp/ssh-agent.sock ]; then
+  sudo chmod 666 /tmp/ssh-agent.sock
+  keys=$(ssh-add -l 2>/dev/null | grep -c SHA256 || true)
+  if [ "$keys" -gt 0 ]; then
+    echo "→ ssh-agent forwarded (${keys} keys loaded)"
+    SSH_AUTH_OK=1
+  fi
+fi
+
+# GITHUB_TOKEN + netrc is a fallback for when ssh-agent isn't forwarded
+# (e.g. host without 1Password-SSH). With both available, prefer SSH so
+# user's `git push` hits the org the key authorizes. Don't use `insteadOf`
+# to rewrite ssh→https; that normalizes user remotes and defeats the point.
+if [ -z "${SSH_AUTH_OK:-}" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
+  echo "→ no ssh-agent — falling back to GITHUB_TOKEN via netrc"
   git config --global url."https://github.com/".insteadOf "git@github.com:"
   git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
   umask 077
@@ -16,8 +34,8 @@ if [ -n "${GITHUB_TOKEN:-}" ]; then
   cat > "$HOME/.netrc" <<EOF
 machine github.com login x-access-token password ${GITHUB_TOKEN}
 EOF
-else
-  echo "  (GITHUB_TOKEN not set — private github: npm deps may fail)"
+elif [ -z "${SSH_AUTH_OK:-}" ]; then
+  echo "⚠️  no ssh-agent forwarded and no GITHUB_TOKEN — github: npm deps and git push will fail"
 fi
 
 echo "→ npm install"
@@ -26,37 +44,14 @@ npm install
 echo "→ npm run install:dropins (copies @dropins + theme files into served paths)"
 npm run install:dropins
 
-# Resolve `aio` without hitting shop/bin/aio (that's our shim that falls back
-# to npx, so it's always "present" — we want to know if a *real* aio is on PATH).
-real_aio_installed() {
-  local self
-  self="$(readlink -f "$(pwd)/bin/aio" 2>/dev/null || echo /dev/null)"
-  local IFS=':'
-  for dir in $PATH; do
-    if [ -x "$dir/aio" ]; then
-      local resolved
-      resolved="$(readlink -f "$dir/aio" 2>/dev/null || echo "$dir/aio")"
-      [ "$resolved" != "$self" ] && return 0
-    fi
-  done
-  return 1
-}
-
-if ! real_aio_installed; then
-  echo "→ installing @adobe/aio-cli globally (2-3 min first run; cached afterwards)"
-  # --loglevel=http prints one line per package fetch so you can see it's alive.
-  # --no-audit --no-fund skip npmjs.org round-trips we don't care about.
-  # --prefer-offline uses the cache volume first; only hits JFrog on miss.
-  npm install -g @adobe/aio-cli \
-    --loglevel=http \
-    --no-audit --no-fund \
-    --prefer-offline
-  echo "→ aio telemetry + plugins"
-  aio telemetry yes
-  aio plugins:install @adobe/aio-cli-plugin-api-mesh
-  aio plugins:install https://github.com/adobe-commerce/aio-cli-plugin-commerce
+# aio-cli + plugins are pre-installed into /opt/aio by the Dockerfile, using
+# the overrides pattern from adobe-commerce to work around JFrog curation
+# blocks on axios / baseline-browser-mapping / webpack-sources transitives.
+# PATH already includes /opt/aio/node_modules/.bin via /etc/profile.d/aio.sh.
+if command -v aio >/dev/null 2>&1; then
+  echo "→ aio-cli ready ($(aio --version 2>&1 | head -1))"
 else
-  echo "→ aio-cli already installed"
+  echo "⚠️  aio-cli not on PATH — image build may have failed; rebuild container." >&2
 fi
 
 echo "✅ setup complete"

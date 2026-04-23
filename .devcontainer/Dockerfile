@@ -73,14 +73,77 @@ USER node
 COPY --chown=node:node .npmrc.jfrog /home/node/.npmrc
 RUN chmod 600 /home/node/.npmrc
 
-# aio-cli is installed at runtime by setup.sh (not here), so its global bin
-# lands in the user-expected location and devs can swap versions without
-# rebuilding the image. The npm cache volume in docker-compose.yml keeps
-# subsequent installs fast even across container recreates.
+# github.com known_hosts for the node user — aio-cli pulls some transitive
+# deps from git+ssh://github.com/... URLs (e.g. devx-services/...), and
+# without a pre-populated entry the non-interactive build hits a host-key
+# prompt and hangs. Line 63 populated /root/.ssh/known_hosts; mirror that
+# for /home/node/.ssh/known_hosts.
+RUN mkdir -p ~/.ssh && chmod 700 ~/.ssh && \
+    curl -sL https://api.github.com/meta | jq -r '.ssh_keys | .[]' | sed -e 's/^/github.com /' >> ~/.ssh/known_hosts && \
+    chmod 600 ~/.ssh/known_hosts
+
+# aio-cli + plugins installed into /opt/aio using the adobe-commerce pattern:
+# a dedicated package.json with `overrides` pins transitive versions that
+# JFrog's bac-npm-remote blocks under its security policy. These defaults are
+# the newest versions currently *allowed* — bump when the block moves. Any
+# new JFrog block surfaces as an npm 403; add the package name + the
+# newest-allowed version as a new override below.
+ARG AIO_CLI_VERSION=11.0.2
+ARG AIO_CLI_PLUGIN_API_MESH_VERSION=5.6.4
+ARG AIO_CLI_PLUGIN_COMMERCE_REF=main
+ARG AXIOS_OVERRIDE_VERSION=1.14.0
+ARG BASELINE_BROWSER_MAPPING_OVERRIDE_VERSION=2.10.20
+ARG WEBPACK_SOURCES_OVERRIDE_VERSION=3.3.3
+ARG AJV_OVERRIDE_VERSION=6.12.6
+
+# /opt needs root to create; chown to node so the npm install runs as node
+# with /home/node/.npmrc (JFrog auth).
+RUN sudo mkdir -p /opt/aio && sudo chown node:node /opt/aio
+
+# Write a tiny aio-local package.json with deps + overrides, then install.
+# JFROG_TOKEN comes from a BuildKit secret at install time — npm reads
+# ~/.npmrc which expands ${JFROG_TOKEN} from process env, so the token is
+# never baked into the image. The BuildKit cache mount on /home/node/.npm
+# persists tarballs across image rebuilds.
+RUN printf '{"name":"aio-local","version":"0.0.0","dependencies":{"@adobe/aio-cli":"%s","@adobe/aio-cli-plugin-api-mesh":"%s"},"overrides":{"axios":"%s","baseline-browser-mapping":"%s","webpack-sources":"%s","ajv":"%s"}}' \
+      "${AIO_CLI_VERSION}" "${AIO_CLI_PLUGIN_API_MESH_VERSION}" \
+      "${AXIOS_OVERRIDE_VERSION}" "${BASELINE_BROWSER_MAPPING_OVERRIDE_VERSION}" "${WEBPACK_SOURCES_OVERRIDE_VERSION}" "${AJV_OVERRIDE_VERSION}" \
+      > /opt/aio/package.json
+
+RUN --mount=type=cache,target=/home/node/.npm,sharing=locked,uid=1000,gid=1000 \
+    --mount=type=secret,id=jfrog_token,uid=1000 \
+    --mount=type=ssh,uid=1000 \
+    JFROG_TOKEN="$(cat /run/secrets/jfrog_token)" \
+    npm --prefix /opt/aio install --loglevel=http --no-audit --no-fund
+
+# PATH wiring + telemetry opt-in + plugin link for api-mesh.
+RUN echo 'export PATH="/opt/aio/node_modules/.bin:$PATH"' | sudo tee /etc/profile.d/aio.sh > /dev/null && \
+    echo 'export PATH="/opt/aio/node_modules/.bin:$PATH"' >> ~/.bashrc && \
+    export PATH="/opt/aio/node_modules/.bin:$PATH" && \
+    aio telemetry yes && \
+    aio plugins:link /opt/aio/node_modules/@adobe/aio-cli-plugin-api-mesh
+
+# aio-cli-plugin-commerce isn't published to npm (only GitHub). We deliberately
+# do NOT use `aio plugins:install <git-url>` — oclif's plugin-plugins always
+# runs npm with --include=dev which pulls electron-to-chromium@latest, another
+# JFrog-blocked package. Instead: clone + `npm install --omit=dev` ourselves,
+# then `aio plugins:link` to register. Same cache mount as above.
+RUN --mount=type=cache,target=/home/node/.npm,sharing=locked,uid=1000,gid=1000 \
+    --mount=type=secret,id=jfrog_token,uid=1000 \
+    --mount=type=ssh,uid=1000 \
+    sudo mkdir -p /opt/aio-cli-plugin-commerce && \
+    sudo chown node:node /opt/aio-cli-plugin-commerce && \
+    JFROG_TOKEN="$(cat /run/secrets/jfrog_token)" \
+    git clone --depth 1 --branch "${AIO_CLI_PLUGIN_COMMERCE_REF}" \
+      https://github.com/adobe-commerce/aio-cli-plugin-commerce /opt/aio-cli-plugin-commerce && \
+    JFROG_TOKEN="$(cat /run/secrets/jfrog_token)" \
+    npm --prefix /opt/aio-cli-plugin-commerce install \
+      --loglevel=http --no-audit --no-fund --omit=dev --legacy-peer-deps && \
+    export PATH="/opt/aio/node_modules/.bin:$PATH" && \
+    aio plugins:link /opt/aio-cli-plugin-commerce
 
 RUN echo 'export PATH="$(pwd)/.devcontainer/bin:$PATH"' >> ~/.bashrc
 RUN echo 'export PATH="$(pwd)/aio/bin:$PATH"' >> ~/.bashrc
-RUN echo 'export PATH="$(pwd)/bin:$PATH"' >> ~/.bashrc
 
 RUN echo 'export WORKSPACE_DIR=$(pwd)' >> ~/.bashrc
 

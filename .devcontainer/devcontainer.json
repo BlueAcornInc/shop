@@ -10,7 +10,13 @@
 	// setup.sh runs on every attach so you can see its output in the terminal
 	// (and re-running is cheap — every step is idempotent). It ends with
 	// `aem up` so the storefront launches in the same command.
-	"postAttachCommand": "bash .devcontainer/setup.sh && npx aem up $AEM_PARAMS",
+	//
+	// `--addr 0.0.0.0` is required inside the devcontainer — aem-cli defaults
+	// to 127.0.0.1 (loopback-only), so Docker's host→container port forward
+	// on 3000 reaches the container's external interface but finds nothing
+	// listening (ECONNRESET on the Mac browser). Binding 0.0.0.0 makes aem up
+	// reachable through the forwarded port.
+	"postAttachCommand": "bash .devcontainer/setup.sh && npx aem up --addr 0.0.0.0 $AEM_PARAMS",
 
 	"forwardPorts": [3000],
 	"customizations": {
