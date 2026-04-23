@@ -36,8 +36,16 @@ services:
       - AEM_PARAMS=${AEM_PARAMS:---url https://main--shop-summit--blueacorninc.aem.live}
     volumes:
       - ../..:/workspaces:cached
+      # Persist the npm cache across container recreates. First install of a
+      # heavy tree (like @adobe/aio-cli + plugins) downloads ~150 tarballs;
+      # second install reuses them and skips the network round-trip. Survives
+      # `docker compose down` + rebuild.
+      - npm-cache:/home/node/.npm
     ports:
       - "3000:3000"
+
+volumes:
+  npm-cache:
 
 secrets:
   jfrog_token:

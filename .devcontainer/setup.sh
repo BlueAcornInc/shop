@@ -43,10 +43,14 @@ real_aio_installed() {
 }
 
 if ! real_aio_installed; then
-  echo "→ installing @adobe/aio-cli globally (this takes a few minutes — progress below)"
+  echo "→ installing @adobe/aio-cli globally (2-3 min first run; cached afterwards)"
   # --loglevel=http prints one line per package fetch so you can see it's alive.
-  # Without this flag npm is silent for 2-5 minutes on this install.
-  npm install -g @adobe/aio-cli --loglevel=http
+  # --no-audit --no-fund skip npmjs.org round-trips we don't care about.
+  # --prefer-offline uses the cache volume first; only hits JFrog on miss.
+  npm install -g @adobe/aio-cli \
+    --loglevel=http \
+    --no-audit --no-fund \
+    --prefer-offline
   echo "→ aio telemetry + plugins"
   aio telemetry yes
   aio plugins:install @adobe/aio-cli-plugin-api-mesh

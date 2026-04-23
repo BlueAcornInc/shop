@@ -73,15 +73,10 @@ USER node
 COPY --chown=node:node .npmrc.jfrog /home/node/.npmrc
 RUN chmod 600 /home/node/.npmrc
 
-# aio-cli is NOT installed at build time — it would need JFROG_TOKEN baked in
-# (or smuggled via a secret mount for every global npm). Easier to let devs
-# install aio via postCreateCommand or on demand:
-#
-#   npm install -g @adobe/aio-cli
-#   aio plugins:install @adobe/aio-cli-plugin-api-mesh
-#   aio plugins:install https://github.com/adobe-commerce/aio-cli-plugin-commerce
-#
-# JFROG_TOKEN is already in the runtime container env, so these just work.
+# aio-cli is installed at runtime by setup.sh (not here), so its global bin
+# lands in the user-expected location and devs can swap versions without
+# rebuilding the image. The npm cache volume in docker-compose.yml keeps
+# subsequent installs fast even across container recreates.
 
 RUN echo 'export PATH="$(pwd)/.devcontainer/bin:$PATH"' >> ~/.bashrc
 RUN echo 'export PATH="$(pwd)/aio/bin:$PATH"' >> ~/.bashrc
