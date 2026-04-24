@@ -28,6 +28,10 @@ jobs:
         git config --global --add url."${AUTH}".insteadOf "git@github.com:"
         git config --global --add url."${AUTH}".insteadOf "git+ssh://git@github.com/"
         git config --global --add url."${AUTH}".insteadOf "https://github.com/"
+        echo "== PAT probe: Metadata (list repo — /repos) =="
+        curl -sS -o /dev/null -w "  %{http_code}\n" -u "x-access-token:${BAC_BOT_PAT}" https://api.github.com/repos/BlueAcornInc/aem-commerce-theme-summit
+        echo "== PAT probe: Contents (list root — needs Contents:Read) =="
+        curl -sS -o /dev/null -w "  %{http_code}\n" -u "x-access-token:${BAC_BOT_PAT}" https://api.github.com/repos/BlueAcornInc/aem-commerce-theme-summit/contents/
         echo "== test BA-org access via git =="
         git ls-remote ssh://git@github.com/BlueAcornInc/aem-commerce-theme-summit.git HEAD
       env:
