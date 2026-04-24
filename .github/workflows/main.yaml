@@ -28,7 +28,11 @@ jobs:
         git config --global --add url."https://github.com/".insteadOf "ssh://git@github.com/"
         git config --global --add url."https://github.com/".insteadOf "git@github.com:"
         git config --global --add url."https://github.com/".insteadOf "git+ssh://git@github.com/"
-        echo "== test BA-org access =="
+        echo "== PAT probe: /user =="
+        curl -sS -o /dev/null -w "  %{http_code}\n" -u "x-access-token:${BAC_BOT_PAT}" https://api.github.com/user
+        echo "== PAT probe: theme repo =="
+        curl -sS -w "  %{http_code}\n" -u "x-access-token:${BAC_BOT_PAT}" https://api.github.com/repos/BlueAcornInc/aem-commerce-theme-summit | python3 -c "import json,sys; raw=sys.stdin.read(); lines=raw.rsplit('\n',2); d=json.loads(lines[0]) if lines[0].strip() else {}; print('  visibility:', d.get('visibility'), 'message:', d.get('message')); print(lines[-2])" 2>&1 | head -3
+        echo "== test BA-org access via git =="
         git ls-remote ssh://git@github.com/BlueAcornInc/aem-commerce-theme-summit.git HEAD
       env:
         BAC_BOT_PAT: ${{ secrets.BAC_BOT_PAT }}
