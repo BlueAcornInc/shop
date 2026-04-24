@@ -35,7 +35,7 @@
   "dependencies": {
     "@adobe/magento-storefront-event-collector": "^1.8.0",
     "@adobe/magento-storefront-events-sdk": "^1.8.0",
-    "@blueacorn/aem-commerce-theme-summit": "github:BlueAcornInc/aem-commerce-theme-summit#v0.1.0",
+    "@blueacorn/aem-commerce-theme-summit": "github:BlueAcornInc/aem-commerce-theme-summit#v0.2.1",
     "@blueacorninc/storefront-storelocator": "^1.0.10",
     "@blueacorninc/storefront-yotpo": "^1.0.0",
     "@dropins/storefront-account": "~1.0.3",
