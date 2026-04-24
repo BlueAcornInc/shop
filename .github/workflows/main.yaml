@@ -6,6 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        # Don't stash the shop-scoped GITHUB_TOKEN as http.extraheader — it
+        # hijacks HTTPS requests to github.com for ALL subsequent git ops
+        # in this repo (including npm's clones of sibling private deps),
+        # overriding the BAC_BOT_PAT we inject below. No persist = no hijack.
+        persist-credentials: false
     - name: Use Node.js 20
       uses: actions/setup-node@v4
       with:
