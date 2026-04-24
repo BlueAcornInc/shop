@@ -31,7 +31,7 @@
 	// },
 
 	"remoteEnv": {
-		"AEM_PARAMS": "--url https://main--shop-summit--blueacorninc.aem.live"
+		"AEM_PARAMS": "--url https://main--shop--blueacorninc.aem.live"
 	},
 
 	"portsAttributes": {
