@@ -46,11 +46,15 @@ registry=https://groupinfosys.jfrog.io/artifactory/api/npm/bac-npm-remote/
 ; environment before running npm.
 //groupinfosys.jfrog.io/artifactory/api/npm/bac-npm-remote/:_authToken=${JFROG_TOKEN}
 
-; @blueacorninc/* packages (like storefront-storelocator) are published to
-; GitHub Packages, not the npm registry. JFrog proxies them via a separate
-; bac-github-npm-remote repo. Same JFROG_TOKEN auth.
-@blueacorninc:registry=https://groupinfosys.jfrog.io/artifactory/api/npm/bac-github-npm-remote/
-//groupinfosys.jfrog.io/artifactory/api/npm/bac-github-npm-remote/:_authToken=${JFROG_TOKEN}
+; @blueacorninc/* packages (storefront-storelocator, storefront-yotpo, etc.)
+; are published to GitHub Packages. We talk to npm.pkg.github.com directly
+; rather than going through JFrog's bac-github-npm-remote proxy — that
+; proxy's metadata cache is multi-hour and doesn't pick up freshly published
+; versions in time, breaking `^X.Y.Z` semver resolution. Requires
+; GITHUB_TOKEN in the container env to have read:packages scope. The host
+; shell exports GITHUB_TOKEN via 1Password; docker-compose.yml propagates it.
+@blueacorninc:registry=https://npm.pkg.github.com/
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
 
 always-auth=true
 strict-ssl=true

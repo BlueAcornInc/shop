@@ -15,13 +15,14 @@ styles/lazy-styles.css
 # Vendored libraries — minified 3rd-party blobs
 scripts/leaflet/
 
-# Blocks installed from npm via @blueacorninc/storefront-storelocator (the
-# package's postinstall copies store-locator/ and product-availability/
-# into blocks/). Source is linted in the storelocator repo's own CI; no
-# value in double-enforcing here, and the copies turn into merge noise
-# every time the package bumps.
+# Blocks installed from npm via @blueacorninc/storefront-storelocator and
+# @blueacorninc/storefront-yotpo — source-of-truth in aio-commerce-storelocator
+# and aio-commerce-yotpo, each lints in its own CI. Re-linting the copies
+# here doubles up and generates merge noise every time the package bumps.
 blocks/store-locator/
 blocks/product-availability/
+blocks/yotpo/
+blocks/yotpo-stars/
 
 # Adobe Boilerplate Commerce upstream — originates in the template import
 # (commit a142165); these refresh from Adobe periodically. BA doesn't maintain
