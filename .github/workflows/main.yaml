@@ -29,21 +29,25 @@ jobs:
     # than with a confusing npm error three steps later.
     - name: Authorize private BA-org deps
       run: |
+        # (1) git clones to sibling BA-org repos (e.g. the theme dep shipped
+        # as a GitHub reference in package.json) — route all ssh/git forms
+        # through https with token embedded.
         AUTH="https://x-access-token:${BAC_BOT_PAT}@github.com/"
         git config --global --add url."${AUTH}".insteadOf "ssh://git@github.com/"
         git config --global --add url."${AUTH}".insteadOf "git@github.com:"
         git config --global --add url."${AUTH}".insteadOf "git+ssh://git@github.com/"
         git config --global --add url."${AUTH}".insteadOf "https://github.com/"
-        echo "== PAT probe: Metadata (list repo — /repos) =="
-        curl -sS -o /dev/null -w "  %{http_code}\n" -u "x-access-token:${BAC_BOT_PAT}" https://api.github.com/repos/BlueAcornInc/aem-commerce-theme-summit
-        echo "== PAT probe: Contents (list root — needs Contents:Read) =="
-        curl -sS -o /dev/null -w "  %{http_code}\n" -u "x-access-token:${BAC_BOT_PAT}" https://api.github.com/repos/BlueAcornInc/aem-commerce-theme-summit/contents/
-        echo "== PAT probe: git-upload-pack direct (what git actually uses) =="
-        curl -sS -o /dev/null -w "  %{http_code}\n" -u "x-access-token:${BAC_BOT_PAT}" "https://github.com/BlueAcornInc/aem-commerce-theme-summit.git/info/refs?service=git-upload-pack"
-        echo "== git config --get-all url.rewrites =="
-        git config --global --get-regexp '^url\.' | sed 's/PAT=.*/PAT=***/'
-        echo "== test BA-org access via git (with CURL_VERBOSE) =="
-        GIT_CURL_VERBOSE=1 git ls-remote ssh://git@github.com/BlueAcornInc/aem-commerce-theme-summit.git HEAD 2>&1 | grep -iE "(> GET|> Authorization|< HTTP|< www-authenticate|fatal)" | head -10
+        # (2) npm install of @blueacorninc/* (storefront-storelocator, etc.)
+        # — published to GitHub Packages. Append to the committed .npmrc so
+        # the existing @adobe override stays intact. BAC devs get this scope
+        # via .devcontainer/.npmrc.jfrog (JFrog github-npm proxy); CI talks
+        # direct to npm.pkg.github.com with BAC_BOT_PAT (needs read:packages).
+        cat >> .npmrc <<EOF
+
+        @blueacorninc:registry=https://npm.pkg.github.com/
+        //npm.pkg.github.com/:_authToken=${BAC_BOT_PAT}
+        always-auth=true
+        EOF
       env:
         BAC_BOT_PAT: ${{ secrets.BAC_BOT_PAT }}
     # `npm install` (not `npm ci`) because package-lock.json is gitignored —

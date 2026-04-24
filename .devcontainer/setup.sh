@@ -8,6 +8,16 @@
 # - aio-cli + plugins for aio/<app> development (one-time, skipped on reruns)
 set -eo pipefail
 
+# VS Code's Dev Containers feature copies the host's ~/.gitconfig into the
+# container so user name/email carry over. On macOS hosts that config often
+# includes `http.sslcainfo = /Users/.../combined-ca.pem` (a Mac path) and
+# `core.sshcommand` pointing at 1Password-SSH — neither of which resolves
+# inside Linux. Strip them; the container uses the system CA bundle and
+# talks to the host ssh-agent via the bind-mounted socket (below).
+for bad in http.sslcainfo http.sslCAInfo core.sshcommand core.sshCommand; do
+  git config --global --unset-all "$bad" 2>/dev/null || true
+done
+
 # Host ssh-agent arrives via bind-mount (see docker-compose.yml). Socket is
 # root-owned because Docker Desktop doesn't remap uids for bind-mounts, so
 # the non-root `node` user needs a chmod. Once accessible, both `git push`

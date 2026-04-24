@@ -79,7 +79,10 @@ export default async function decorate(block) {
       const productData = result?.data?.products?.[0];
       return productData || null;
     } catch (error) {
-      console.error("[product-availability] Error fetching availability:", error);
+      console.error(
+        "[product-availability] Error fetching availability:",
+        error
+      );
       return null;
     }
   };

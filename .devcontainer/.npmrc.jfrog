@@ -46,5 +46,11 @@ registry=https://groupinfosys.jfrog.io/artifactory/api/npm/bac-npm-remote/
 ; environment before running npm.
 //groupinfosys.jfrog.io/artifactory/api/npm/bac-npm-remote/:_authToken=${JFROG_TOKEN}
 
+; @blueacorninc/* packages (like storefront-storelocator) are published to
+; GitHub Packages, not the npm registry. JFrog proxies them via a separate
+; bac-github-npm-remote repo. Same JFROG_TOKEN auth.
+@blueacorninc:registry=https://groupinfosys.jfrog.io/artifactory/api/npm/bac-github-npm-remote/
+//groupinfosys.jfrog.io/artifactory/api/npm/bac-github-npm-remote/:_authToken=${JFROG_TOKEN}
+
 always-auth=true
 strict-ssl=true
