@@ -7,7 +7,7 @@
     "lint:js": "eslint .",
     "lint:css": "stylelint blocks/**/*.css styles/*.css",
     "lint": "npm run lint:js && npm run lint:css",
-    "start": "aem up --print-index",
+    "start": "aem up --addr 0.0.0.0 --print-index $AEM_PARAMS",
     "install:dropins": "node build.mjs && node postinstall.js",
     "-postinstall": "npm run install:dropins",
     "-postupdate": "npm run install:dropins"
@@ -35,6 +35,9 @@
   "dependencies": {
     "@adobe/magento-storefront-event-collector": "^1.8.0",
     "@adobe/magento-storefront-events-sdk": "^1.8.0",
+    "@blueacorn/aem-commerce-theme-summit": "github:BlueAcornInc/aem-commerce-theme-summit#v0.1.0",
+    "@blueacorninc/storefront-storelocator": "^1.0.10",
+    "@blueacorninc/storefront-yotpo": "^1.0.0",
     "@dropins/storefront-account": "~1.0.3",
     "@dropins/storefront-auth": "~1.0.3",
     "@dropins/storefront-cart": "~1.0.3",

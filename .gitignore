@@ -12,3 +12,11 @@ helix-importer-ui
 scripts/__dropins__/**/*.map
 fstab.yaml
 .aio
+
+# Devcontainer per-dev secrets + optional Zscaler cert export
+.devcontainer/.env
+.devcontainer/zscaler.crt
+
+# Lockfile resolves differently across BAC JFrog / public npm; keep it out of
+# git so registry-specific URLs don't leak. Devcontainer regenerates on install.
+package-lock.json

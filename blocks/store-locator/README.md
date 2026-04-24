@@ -1,73 +1,69 @@
-# Store Locator Block for Adobe Commerce
-
-## Overview
-This JavaScript module decorates a block with store locator functionality, allowing users to select a store and view details on a map. It integrates with Leaflet.js to display store locations and enables filtering by ZIP code.
-
-## Features
-- Loads Leaflet.js and its CSS for interactive maps.
-- Displays a list of store locations retrieved from an API.
-- Allows users to filter stores by ZIP code.
-- Highlights the selected store and updates the session storage.
-- Dynamically updates UI components with selected store details.
-
-## Implementation
-### 1. **Initialize the Block**
-- Loads Leaflet.js and required CSS.
-- Creates UI components including a store list, ZIP code filter, and interactive map.
-
-### 2. **Fetch and Display Store Data**
-- Retrieves store data from `/store-locator/stores.json`.
-- Dynamically generates store cards and map markers.
-
-### 3. **Interactive Store Selection**
-- Clicking a store card triggers an event to update session storage.
-- Updates the displayed selected store details.
-- Scrolls the list and pans the map to the selected store.
-
-### 4. **ZIP Code Filtering**
-- Implements a form to filter stores by ZIP code.
-- Hides stores that do not match the entered ZIP.
-- Adjusts map marker visibility accordingly.
-
-### 5. **Event Handling and Custom Events**
-- Listens for `storeNum` and `updateAvailability` events.
-- Updates UI dynamically when a store is selected.
-
----
-
 # Store Locator Shared Block
 
-Store locators for Edge Delivery Services, perhaps with an App Builder accompaniment.
+Store locators for Edge Delivery Services
 
-[View Demo](https://locator--showcase-evergreen-commerce-storefront--blueacorninc.hlx.live/store-locator/)
+[View Demo](https://blueacornici.shop/products/photoshop-tee/ADB386)
 
 ## Technical Approach
 
-Helix exposes the [store-locator/stores sheet](https://docs.google.com/spreadsheets/d/1zk2k46zqc73RS_NhzvkxTmgPbSRN0Vsunjla-tzUAyw/edit?gid=1909637118#gid=1909637118) as [hlx.live/store-locator/stores.json](https://main--showcase-evergreen-commerce-storefront--blueacorninc.hlx.live/store-locator/stores.json) that is consumed by the `store-locator` block in this directory.
+The storefront exposes a `store-locator/stores` sheet as a `stores.json` endpoint that is consumed by the `store-locator` block in this directory.
 
-with the AEM Sidekick installed, we can manage the entire store locator experience within Google Drive or Sharepoint. 
+With the AEM Sidekick installed, you can manage the entire store locator experience from your authoring environment (Google Drive, SharePoint, or da.live).
 
-Edit [store-locator/stores sheet](https://docs.google.com/spreadsheets/d/1zk2k46zqc73RS_NhzvkxTmgPbSRN0Vsunjla-tzUAyw/edit?gid=1909637118#gid=1909637118) and use AEM Sidekick to Preview and Publish the changes. This will produce a [hlx.live/store-locator/stores.json](https://main--showcase-evergreen-commerce-storefront--blueacorninc.hlx.live/store-locator/stores.json) that we can drive our experience with the shared block.
+Edit your `store-locator/stores` sheet and use AEM Sidekick to Preview and Publish the changes. This produces a `stores.json` file that drives the store locator experience via this shared block.
 
-The experience will be driven by a combination of this block and the [store-locator/index doc](https://docs.google.com/document/d/1PPViXzysO9FdQouEtEPp1pmww1NrJScWgIy0KxmKsPQ/edit?tab=t.0#heading=h.nbh8hvrzlmhd). The doc will contain a `store-locator` table that will be used to place and configure the block in runtime. 
+The experience is driven by a combination of this block and a `store-locator/index` document. The document contains a `store-locator` table that places and configures the block at runtime.
 
-### Todo
+### Product Availability
 
-* let's create `aio-app-commerce-store-locator` and use this [Admin UI SDK Example](https://github.com/adobe/adobe-commerce-samples/tree/main/admin-ui-sdk/menu/custom-menu) to add an entry to the admin for this, and expose some capability.
-
+This block is intended to work in concert with the Product Availability block also included in this repository. It fetches store availability using the native GraphQL APIs that serve availability data.
 
 ## Installation
 
-1. Add [this folder](https://drive.google.com/drive/u/0/folders/1jaCzCSbFBAAQPr0816HJuUqfMMGRcRiK) to your document-based project:
+1. Add [this folder](https://da.live/#/blueacorninc/shop/store-locator) to your document-based project.
 
-2. Then configure the [stores sheet](https://docs.google.com/spreadsheets/d/1zk2k46zqc73RS_NhzvkxTmgPbSRN0Vsunjla-tzUAyw/edit?gid=1909637118#gid=1909637118) to suit your needs. 
+2. Then configure the [stores sheet](https://da.live/sheet#/blueacorninc/shop/store-locator/stores) to suit your needs.
 
+## Document-based Authoring
 
-## Sample Data
+To add the store locator block to a page, create a single-cell table in your EDS document (Google Doc, SharePoint, or da.live) with the header `store-locator`:
 
-This is to be imported into a `/store-locator/stores.<xlsx|gsheet>` that tracks the stores and allows you to manage meta data. Data provided by data.gov where you can find the [source csv](https://opendata.dc.gov/api/download/v1/items/1d7c9d0e3aac49c1aa88d377a3bae430/csv?layers=4). This will also be reflected in the [stores sheet](https://docs.google.com/spreadsheets/d/1zk2k46zqc73RS_NhzvkxTmgPbSRN0Vsunjla-tzUAyw/edit?gid=1909637118#gid=1909637118)
+| store-locator |
+| ------------- |
+|               |
 
+This renders as the following HTML on the storefront, which the block's `decorate()` function then populates with the interactive map, store list, ZIP code filter, and store selection UI:
 
-## Note about App Builder
+```html
+<div class="store-locator-wrapper">
+  <div class="store-locator block" data-block-name="store-locator">
+    <div>
+      <div></div>
+    </div>
+  </div>
+</div>
+```
 
-This experience _can_ be built entirely using document-based authoring. Let's work out if we need an App Builder accompaniment, and if so what would it drive and how.
+### Store Card Configuration
+
+The block supports configuring which fields appear on store cards via `data-store-card-row-*` attributes on a `.store-locator-container` element. If no configuration is provided, the block defaults to showing the store **name**, **address**, and **phone**.
+
+### Stores Sheet
+
+The block reads store data from `/store-locator/stores.json`. This is produced by a `store-locator/stores` sheet in your authoring environment. The sheet should contain columns matching the fields in [example-stores.csv](../example-stores.csv):
+
+| Column                  | Description                                |
+| ----------------------- | ------------------------------------------ |
+| `name`                  | Store name                                 |
+| `rating`                | Star rating (1-5)                          |
+| `numOfReviews`          | Review count label (e.g. "26 reviews")     |
+| `type`                  | Store type label                           |
+| `address`               | Street address                             |
+| `phone`                 | Phone number                               |
+| `lat`                   | Latitude                                   |
+| `lng`                   | Longitude                                  |
+| `commerce_warehouse_id` | Commerce source code for inventory lookups |
+| `zip`                   | ZIP code                                   |
+| `state`                 | State                                      |
+| `city`                  | City                                       |
+| `hours`                 | Store hours                                |

@@ -11,3 +11,78 @@ scripts/widgets
 plugins/
 cypress/
 styles/lazy-styles.css
+
+# Vendored libraries — minified 3rd-party blobs
+scripts/leaflet/
+
+# Blocks installed from npm via @blueacorninc/storefront-storelocator and
+# @blueacorninc/storefront-yotpo — source-of-truth in aio-commerce-storelocator
+# and aio-commerce-yotpo, each lints in its own CI. Re-linting the copies
+# here doubles up and generates merge noise every time the package bumps.
+blocks/store-locator/
+blocks/product-availability/
+blocks/yotpo/
+blocks/yotpo-stars/
+
+# Adobe Boilerplate Commerce upstream — originates in the template import
+# (commit a142165); these refresh from Adobe periodically. BA doesn't maintain
+# the code style here and linting it churns on every upstream bump. BA-owned
+# blocks (blueacorn-*, store-locator, yotpo*, product-availability, etc.)
+# stay in lint scope.
+blocks/cards-list/
+blocks/cards/
+blocks/carousel/
+blocks/columns/
+blocks/commerce-account-header/
+blocks/commerce-account-sidebar/
+blocks/commerce-addresses/
+blocks/commerce-cart/
+blocks/commerce-checkout/
+blocks/commerce-confirm-account/
+blocks/commerce-create-account/
+blocks/commerce-create-password/
+blocks/commerce-create-return/
+blocks/commerce-customer-details/
+blocks/commerce-customer-information/
+blocks/commerce-forgot-password/
+blocks/commerce-login/
+blocks/commerce-mini-cart/
+blocks/commerce-order-cost-summary/
+blocks/commerce-order-header/
+blocks/commerce-order-product-list/
+blocks/commerce-order-returns/
+blocks/commerce-order-status/
+blocks/commerce-orders-list/
+blocks/commerce-return-header/
+blocks/commerce-returns-list/
+blocks/commerce-search-order/
+blocks/commerce-shipping-status/
+blocks/content-columns/
+blocks/enrichment/
+blocks/footer-content/
+blocks/footer/
+blocks/fragment/
+blocks/header/
+blocks/hero/
+blocks/modal/
+blocks/product-details/
+blocks/product-list-page-custom/
+blocks/product-list-page/
+blocks/product-recommendations/
+blocks/product-teaser/
+blocks/targeted-block/
+
+# Adobe-upstream scripts scaffolding (same reasoning as blocks/ above).
+scripts/aem.js
+scripts/api/
+scripts/checkout.js
+scripts/commerce.js
+scripts/configs.js
+scripts/constants.js
+scripts/delayed.js
+scripts/footer-links.js
+scripts/initializers/
+scripts/scripts.js
+scripts/theme-config.js
+scripts/theme.js
+scripts/wishlist/

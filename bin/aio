@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Smart dispatcher for `aio`: prefers an already-installed @adobe/aio-cli
+# (global npm bin), falls back to `npx --yes @adobe/aio-cli` otherwise.
+#
+# This lives in aio/bin/ (which is on PATH via .bashrc), so `aio <cmd>` works
+# whether or not aio-cli is globally installed. Once setup.sh installs it
+# globally, this shim transparently hands off.
+set -euo pipefail
+
+SELF="$(readlink -f "$0" 2>/dev/null || echo "$0")"
+
+# Walk PATH; exec the first `aio` that isn't this shim.
+IFS=':'
+for dir in $PATH; do
+  candidate="$dir/aio"
+  if [ -x "$candidate" ]; then
+    real="$(readlink -f "$candidate" 2>/dev/null || echo "$candidate")"
+    if [ "$real" != "$SELF" ]; then
+      exec "$candidate" "$@"
+    fi
+  fi
+done
+unset IFS
+
+# No global install — use npx. The BAC JFrog mirror handles the fetch.
+exec npx --yes @adobe/aio-cli "$@"

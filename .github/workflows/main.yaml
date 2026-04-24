@@ -6,9 +6,56 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        # Don't stash the shop-scoped GITHUB_TOKEN as http.extraheader — it
+        # hijacks HTTPS requests to github.com for ALL subsequent git ops
+        # in this repo (including npm's clones of sibling private deps),
+        # overriding the BAC_BOT_PAT we inject below. No persist = no hijack.
+        persist-credentials: false
     - name: Use Node.js 20
       uses: actions/setup-node@v4
       with:
         node-version: 20
-    - run: npm ci
+    # Authenticate git clones to sibling private BA-org repos (the
+    # @blueacorn/aem-commerce-theme-summit theme dep and any future
+    # github: deps). BAC_BOT_PAT is a repo secret; default secrets.GITHUB_TOKEN
+    # only scopes to this repo, not org-siblings.
+    #
+    # Two layers: (1) netrc provides the credential for https://github.com
+    # so the PAT never appears in git config. (2) url.insteadOf rewrites every
+    # ssh-ish form npm might emit (`ssh://`, `git@:`, `git+ssh://`) to plain
+    # https, letting netrc handle auth. A trailing `git ls-remote` smoke-tests
+    # the setup so CI fails loudly here if the PAT is missing/wrong rather
+    # than with a confusing npm error three steps later.
+    - name: Authorize private BA-org deps
+      run: |
+        # (1) git clones to sibling BA-org repos (e.g. the theme dep shipped
+        # as a GitHub reference in package.json) — route all ssh/git forms
+        # through https with token embedded.
+        AUTH="https://x-access-token:${BAC_BOT_PAT}@github.com/"
+        git config --global --add url."${AUTH}".insteadOf "ssh://git@github.com/"
+        git config --global --add url."${AUTH}".insteadOf "git@github.com:"
+        git config --global --add url."${AUTH}".insteadOf "git+ssh://git@github.com/"
+        git config --global --add url."${AUTH}".insteadOf "https://github.com/"
+        # (2) npm install of @blueacorninc/* (storefront-storelocator, etc.)
+        # — published to GitHub Packages. Append to the committed .npmrc so
+        # the existing @adobe override stays intact. BAC devs get this scope
+        # via .devcontainer/.npmrc.jfrog (JFrog github-npm proxy); CI talks
+        # direct to npm.pkg.github.com with BAC_BOT_PAT (needs read:packages).
+        cat >> .npmrc <<EOF
+
+        @blueacorninc:registry=https://npm.pkg.github.com/
+        //npm.pkg.github.com/:_authToken=${BAC_BOT_PAT}
+        always-auth=true
+        EOF
+      env:
+        BAC_BOT_PAT: ${{ secrets.BAC_BOT_PAT }}
+    # `npm install` (not `npm ci`) because package-lock.json is gitignored —
+    # BAC devs install through JFrog's bac-npm-remote, which resolves to
+    # different URLs/shasums than public npm. Committing a JFrog-flavored
+    # lockfile would break this step (wrong registry) and committing a
+    # public-npm lockfile requires a non-BAC machine to generate. Since the
+    # CI step is lint-only and EDS doesn't deploy anything from here,
+    # dropping `ci` semantics is the cheapest fix.
+    - run: npm install --no-audit --no-fund
     - run: npm run lint

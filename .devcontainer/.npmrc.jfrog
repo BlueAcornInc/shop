@@ -1,0 +1,60 @@
+; ─────────────────────────────────────────────────────────────────────────────
+; Blue Acorn iCi — npm registry config (BAC JFrog mirror)
+;
+; Copy to ~/.npmrc if you want npm on the host. Inside the devcontainer this
+; file is already at /root/.npmrc and JFROG_TOKEN is injected via
+; docker-compose's env_file — you shouldn't need to do anything.
+;
+; ─────────────────────────────────────────────────────────────────────────────
+; Required environment
+;
+;     export JFROG_TOKEN=<your identity token>
+;
+; Generate a token at:
+;     https://groupinfosys.jfrog.io/ui/user_profile  →  "Generate Identity Token"
+;
+; Persistent setup on a BAC Mac — put the token in ~/.env, then source it
+; from ~/.zshenv (which runs for every zsh shell, including non-interactive
+; ones like git hooks and GUI apps):
+;
+;     # in ~/.zshenv
+;     [ -f ~/.env ] && set -a && . ~/.env && set +a
+;
+; ─────────────────────────────────────────────────────────────────────────────
+; CA trust
+;
+; Behind Zscaler, export NODE_EXTRA_CA_CERTS=~/.ssl/combined-ca.pem so Node
+; trusts the corp-issued roots. The devcontainer sets this for you.
+;
+; ─────────────────────────────────────────────────────────────────────────────
+; BAC-only — this file can't fall back to public npm
+;
+; npm's .npmrc grammar has no conditionals. ${VAR} is a literal identifier
+; lookup with no default-value syntax (${VAR:-x}, ${VAR-x}, ${VAR:+x} all
+; stay literal when the var is unset), no ternaries, and no include chain.
+; So a single .npmrc that branches between registries on env-var presence
+; isn't expressible in the grammar. If you're outside the BAC network and
+; need public npm, use a different .npmrc — don't copy this one.
+; ─────────────────────────────────────────────────────────────────────────────
+
+; Registry URL pinned to the BAC JFrog mirror.
+registry=https://groupinfosys.jfrog.io/artifactory/api/npm/bac-npm-remote/
+
+; Auth token for the JFrog host. npm expands ${JFROG_TOKEN} at parse time;
+; if the var is unset, the value stays literal "${JFROG_TOKEN}" and every
+; request 401s. Loud failure, not a silent one — set JFROG_TOKEN in the
+; environment before running npm.
+//groupinfosys.jfrog.io/artifactory/api/npm/bac-npm-remote/:_authToken=${JFROG_TOKEN}
+
+; @blueacorninc/* packages (storefront-storelocator, storefront-yotpo, etc.)
+; are published to GitHub Packages. We talk to npm.pkg.github.com directly
+; rather than going through JFrog's bac-github-npm-remote proxy — that
+; proxy's metadata cache is multi-hour and doesn't pick up freshly published
+; versions in time, breaking `^X.Y.Z` semver resolution. Requires
+; GITHUB_TOKEN in the container env to have read:packages scope. The host
+; shell exports GITHUB_TOKEN via 1Password; docker-compose.yml propagates it.
+@blueacorninc:registry=https://npm.pkg.github.com/
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+
+always-auth=true
+strict-ssl=true
