@@ -1,16 +1,29 @@
 /* eslint-disable import/no-unresolved */
-import { ProductListingPage } from '@dropins/storefront-search/containers/ProductListingPage.js';
-import { render as provider } from '@dropins/storefront-search/render.js';
 import { readBlockConfig } from '../../scripts/aem.js';
 import { getConfigValue, getHeaders } from '../../scripts/configs.js';
 import { getProperty } from '../../scripts/commerce.js';
 
-// Initializer
-await import('../../scripts/initializers/search.js');
-
 export default async function decorate(block) {
   const { type } = readBlockConfig(block);
   block.textContent = '';
+
+  let render;
+  let ProductListingPage;
+  try {
+    await import('../../scripts/initializers/search.js');
+    const [{ render: providerRender }, { ProductListingPage: listingPage }] = await Promise.all([
+      import('@dropins/storefront-search/render.js'),
+      import('@dropins/storefront-search/containers/ProductListingPage.js'),
+    ]);
+    render = providerRender;
+    ProductListingPage = listingPage;
+  } catch (error) {
+    if (type === 'search') {
+      block.innerHTML = '<p>Search is temporarily unavailable while package proxy access is being restored.</p>';
+    }
+    console.warn('Product list page search module is unavailable.', error);
+    return;
+  }
 
   const urlpath = window.location.pathname.slice(1);
 
@@ -112,5 +125,5 @@ export default async function decorate(block) {
 
   const widget = document.createElement('div');
   block.appendChild(widget);
-  provider.render(ProductListingPage, { storeConfig })(widget);
+  render(ProductListingPage, { storeConfig })(widget);
 }
