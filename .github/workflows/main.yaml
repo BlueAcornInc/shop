@@ -32,8 +32,12 @@ jobs:
         curl -sS -o /dev/null -w "  %{http_code}\n" -u "x-access-token:${BAC_BOT_PAT}" https://api.github.com/repos/BlueAcornInc/aem-commerce-theme-summit
         echo "== PAT probe: Contents (list root — needs Contents:Read) =="
         curl -sS -o /dev/null -w "  %{http_code}\n" -u "x-access-token:${BAC_BOT_PAT}" https://api.github.com/repos/BlueAcornInc/aem-commerce-theme-summit/contents/
-        echo "== test BA-org access via git =="
-        git ls-remote ssh://git@github.com/BlueAcornInc/aem-commerce-theme-summit.git HEAD
+        echo "== PAT probe: git-upload-pack direct (what git actually uses) =="
+        curl -sS -o /dev/null -w "  %{http_code}\n" -u "x-access-token:${BAC_BOT_PAT}" "https://github.com/BlueAcornInc/aem-commerce-theme-summit.git/info/refs?service=git-upload-pack"
+        echo "== git config --get-all url.rewrites =="
+        git config --global --get-regexp '^url\.' | sed 's/PAT=.*/PAT=***/'
+        echo "== test BA-org access via git (with CURL_VERBOSE) =="
+        GIT_CURL_VERBOSE=1 git ls-remote ssh://git@github.com/BlueAcornInc/aem-commerce-theme-summit.git HEAD 2>&1 | grep -iE "(> GET|> Authorization|< HTTP|< www-authenticate|fatal)" | head -10
       env:
         BAC_BOT_PAT: ${{ secrets.BAC_BOT_PAT }}
     # `npm install` (not `npm ci`) because package-lock.json is gitignored —
