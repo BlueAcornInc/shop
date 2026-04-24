@@ -6,26 +6,30 @@ const { dependencies } = require('./package.json');
 // Define the dropins folder
 const dropinsDir = path.join('scripts', '__dropins__');
 
-// Remove existing dropins folder
-if (fs.existsSync(dropinsDir)) {
-  fs.rmSync(dropinsDir, { recursive: true });
-}
-
-// Create scripts/__dropins__ directory if not exists
+// Ensure the dropins folder exists (don't wipe it — see below).
 fs.mkdirSync(dropinsDir, { recursive: true });
 
-// Copy specified files from node_modules/@dropins to scripts/__dropins__
+// Copy each @dropins/* package that's both in node_modules AND declared in
+// package.json dependencies. Only the TARGET subdirectory of each is wiped
+// before re-copy — dropins NOT in node_modules (e.g. vendored ones like
+// storefront-search, which JFrog's bac-npm-remote doesn't carry) stay put.
+// The old behavior of rm-rf'ing the entire dropins dir clobbered those
+// every install.
 fs.readdirSync('node_modules/@dropins', { withFileTypes: true }).forEach((file) => {
-  // Skip if package is not in package.json dependencies / skip devDependencies
   if (!dependencies[`@dropins/${file.name}`]) {
     return;
   }
 
-  // Skip if is not folder
   if (!file.isDirectory()) {
     return;
   }
-  fs.cpSync(path.join('node_modules', '@dropins', file.name), path.join(dropinsDir, file.name), {
+
+  const target = path.join(dropinsDir, file.name);
+  if (fs.existsSync(target)) {
+    fs.rmSync(target, { recursive: true });
+  }
+
+  fs.cpSync(path.join('node_modules', '@dropins', file.name), target, {
     recursive: true,
     filter: (src) => (!src.endsWith('package.json')),
   });

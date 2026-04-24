@@ -1,4 +1,7 @@
 /* eslint-disable import/no-unresolved */
+import { render as provider } from '@dropins/storefront-search/render.js';
+import SearchPopover from '@dropins/storefront-search/containers/SearchPopover.js';
+
 async function getStoreDetails() {
   return {
     config: {
@@ -22,23 +25,21 @@ async function getStoreDetails() {
 }
 
 async function initSearchPopover() {
-  const rootElement = document.getElementById('search_autocomplete');
-  if (!rootElement) {
-    console.error('Root element #search_autocomplete not found.');
-    return;
-  }
+  import('../../scripts/initializers/search.js');
 
   try {
-    await import('../../scripts/initializers/search.js');
-    const [{ render }, { default: SearchPopover }] = await Promise.all([
-      import('@dropins/storefront-search/render.js'),
-      import('@dropins/storefront-search/containers/SearchPopover.js'),
-    ]);
     const storeDetails = await getStoreDetails();
-    render(SearchPopover, { storefrontDetails: storeDetails })(rootElement);
+    const rootElement = document.getElementById('search_autocomplete');
+
+    if (rootElement) {
+      provider.render(SearchPopover, { storefrontDetails: storeDetails })(
+        rootElement,
+      );
+    } else {
+      console.error('Root element #search_autocomplete not found.');
+    }
   } catch (error) {
-    rootElement.innerHTML = '';
-    console.warn('Search popover disabled until storefront-search is available in JFrog.', error);
+    console.error('Failed to initialize search popover:', error);
   }
 }
 
