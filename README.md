@@ -30,8 +30,9 @@ Use [`.github/workflows/integration-branch-update.yaml`](.github/workflows/integ
 
 Expected repository dispatch events:
 
-- `yotpo-release` -> updates `yotpo` and `all`
-- `storelocator-release` -> updates `store-locator` and `all`
+- `yotpo-release` -> updates `yotpo`
+- `storelocator-release` -> updates `store-locator`
+- `all-release` -> updates `all`
 
 Required secret:
 
@@ -55,6 +56,26 @@ git push origin main
 ```
 
 Then run the integration workflow manually for `all`, `yotpo`, and `store-locator` so those deploy branches are regenerated from the refreshed theme baseline.
+
+### Branch Protection
+
+`main` should be protected as the upstream-sync baseline branch:
+
+- Require pull requests before merging
+- Require at least 1 approving review
+- Require conversation resolution before merge
+- Disallow force pushes and branch deletion
+
+### Weekly Upstream PR Automation
+
+Use [`.github/workflows/weekly-upstream-sync-pr.yaml`](.github/workflows/weekly-upstream-sync-pr.yaml) to create a weekly PR from `hlxsites/aem-boilerplate-commerce:main` into this repo's `main`.
+
+Workflow behavior:
+
+- Runs weekly (Monday 13:00 UTC) and on manual dispatch
+- Creates/updates `automation/upstream-sync-YYYYMMDD`
+- Runs `npm install` and `npm run lint` before opening the PR
+- Optionally auto-approves the PR with `BAC_BOT_PAT` after checks in this workflow pass
 
 ## Commerce as a Cloud Instances
 

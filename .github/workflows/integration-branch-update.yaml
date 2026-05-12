@@ -20,6 +20,7 @@ on:
     types:
       - yotpo-release
       - storelocator-release
+      - all-release
 
 permissions:
   contents: write
@@ -36,7 +37,6 @@ jobs:
 
           profile=""
           target_branch=""
-          push_additional_branch=""
 
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             profile="${{ inputs.profile }}"
@@ -45,10 +45,10 @@ jobs:
             event_type="${{ github.event.action }}"
             if [[ "$event_type" == "yotpo-release" ]]; then
               profile="yotpo"
-              push_additional_branch="all"
             elif [[ "$event_type" == "storelocator-release" ]]; then
               profile="store-locator"
-              push_additional_branch="all"
+            elif [[ "$event_type" == "all-release" ]]; then
+              profile="all"
             else
               echo "Unsupported repository_dispatch type: $event_type" >&2
               exit 1
@@ -71,7 +71,6 @@ jobs:
 
           echo "profile=$profile" >> "$GITHUB_OUTPUT"
           echo "target_branch=$target_branch" >> "$GITHUB_OUTPUT"
-          echo "push_additional_branch=$push_additional_branch" >> "$GITHUB_OUTPUT"
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -154,7 +153,6 @@ jobs:
         env:
           TARGET_BRANCH: ${{ steps.resolve.outputs.target_branch }}
           PROFILE: ${{ steps.resolve.outputs.profile }}
-          PUSH_ADDITIONAL_BRANCH: ${{ steps.resolve.outputs.push_additional_branch }}
         run: |
           set -euo pipefail
 
@@ -169,7 +167,3 @@ jobs:
           git add package.json blocks scripts
           git commit -m "chore(integrations): update ${PROFILE} profile"
           git push --force-with-lease origin "HEAD:${TARGET_BRANCH}"
-
-          if [[ -n "$PUSH_ADDITIONAL_BRANCH" ]]; then
-            git push --force-with-lease origin "HEAD:${PUSH_ADDITIONAL_BRANCH}"
-          fi
