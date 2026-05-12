@@ -1,6 +1,6 @@
 # blueacornici.shop — Adobe Commerce Storefront (2026)
 
-Blue Acorn iCi's Adobe Commerce on Edge Delivery Services storefront. This is the working `shop` repo; the live storefront lives at `main--shop--blueacorninc.aem.live`.
+Blue Acorn iCi's Adobe Commerce on Edge Delivery Services storefront. `main` is the clean theme baseline branch; the fully integrated storefront should live on `all--shop--blueacorninc.aem.live`.
 
 ## Documentation
 
@@ -8,28 +8,30 @@ https://experienceleague.adobe.com/developer/commerce/storefront/
 
 ## Storefront Environments
 
-- Preview: https://main--shop--blueacorninc.aem.page/
-- Live: https://main--shop--blueacorninc.aem.live/
+- Main Preview: https://main--shop--blueacorninc.aem.page/
+- Main Live: https://main--shop--blueacorninc.aem.live/
+- All Live: https://all--shop--blueacorninc.aem.live/
 - GitHub: https://github.com/BlueAcornInc/shop
 
 ## Branch Profiles and Deploy Targets
 
-`main` is the canonical theme branch and should stay aligned with upstream storefront/theme updates. Integration branches track `main` plus one app package profile. Pushing to each branch deploys to the matching EDS host.
+`main` is the canonical clean theme branch and should stay aligned with upstream storefront/theme updates. Deploy branches are generated from `main`, then pinned to an integration profile. That keeps upstream merges simple while making each deployment target explicit.
 
 | Branch | Profile | Managed npm packages | Live URL | Update trigger |
 | - | - | - | - | - |
-| `main` | Theme baseline + core integrations | `@blueacorninc/storefront-yotpo`, `@blueacorninc/storefront-storelocator` | https://main--shop--blueacorninc.aem.live/ | normal PR merges + manual profile update workflow |
+| `main` | Theme only baseline | none of the BA integration packages | https://main--shop--blueacorninc.aem.live/ | normal PR merges from theme/upstream work |
+| `all` | Theme + all integration blocks | `@blueacorninc/storefront-yotpo`, `@blueacorninc/storefront-storelocator` | https://all--shop--blueacorninc.aem.live/ | manual workflow dispatch, plus block release fan-out |
 | `yotpo` | Theme + yotpo only | `@blueacorninc/storefront-yotpo` | https://yotpo--shop--blueacorninc.aem.live/ | `repository_dispatch` type `yotpo-release` or manual workflow dispatch |
 | `store-locator` | Theme + store locator only | `@blueacorninc/storefront-storelocator` | https://store-locator--shop--blueacorninc.aem.live/ | `repository_dispatch` type `storelocator-release` or manual workflow dispatch |
 
 ### Automation Workflow
 
-Use [`.github/workflows/integration-branch-update.yaml`](.github/workflows/integration-branch-update.yaml) to apply one profile, commit updated block/package content, and push the target branch (which triggers EDS deployment for that branch host).
+Use [`.github/workflows/integration-branch-update.yaml`](.github/workflows/integration-branch-update.yaml) to rebuild a deploy branch from `origin/main`, apply one integration profile, commit updated block/package content, and force-push the target branch.
 
 Expected repository dispatch events:
 
-- `yotpo-release` -> updates `yotpo` branch
-- `storelocator-release` -> updates `store-locator` branch
+- `yotpo-release` -> updates `yotpo` and `all`
+- `storelocator-release` -> updates `store-locator` and `all`
 
 Required secret:
 
@@ -52,7 +54,7 @@ git merge --ff-only upstream/main
 git push origin main
 ```
 
-Then run the integration workflow manually for `yotpo` and `store-locator` so those branches pick up the refreshed theme baseline.
+Then run the integration workflow manually for `all`, `yotpo`, and `store-locator` so those deploy branches are regenerated from the refreshed theme baseline.
 
 ## Commerce as a Cloud Instances
 
