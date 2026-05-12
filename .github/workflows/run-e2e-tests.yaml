@@ -2,15 +2,35 @@ name: Cypress E2E Tests
 on: push
 jobs:
   cypress-run:
-    # If you want this job to run on your fork, remove the below "if" line.
-    # You will need to "fix" the tests as they are specific to Adobe Commmerce's
-    # demo backend.
-    if: github.repository == 'hlxsites/aem-boilerplate-commerce'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Authorize private BA-org deps
+        env:
+          BAC_BOT_PAT: ${{ secrets.BAC_BOT_PAT }}
+        run: |
+          AUTH="https://x-access-token:${BAC_BOT_PAT}@github.com/"
+          git config --global --add url."${AUTH}".insteadOf "ssh://git@github.com/"
+          git config --global --add url."${AUTH}".insteadOf "git@github.com:"
+          git config --global --add url."${AUTH}".insteadOf "git+ssh://git@github.com/"
+          git config --global --add url."${AUTH}".insteadOf "https://github.com/"
+
+          cat >> .npmrc <<EOF
+
+          @blueacorninc:registry=https://npm.pkg.github.com/
+          //npm.pkg.github.com/:_authToken=${BAC_BOT_PAT}
+          always-auth=true
+          EOF
+
       - name: Install root dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
+
       - name: Start server in the background
         run: npm start &
 
