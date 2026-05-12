@@ -1,0 +1,54 @@
+name: E2E Gate
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Authorize private BA-org deps
+        env:
+          BAC_BOT_PAT: ${{ secrets.BAC_BOT_PAT }}
+        run: |
+          AUTH="https://x-access-token:${BAC_BOT_PAT}@github.com/"
+          git config --global --add url."${AUTH}".insteadOf "ssh://git@github.com/"
+          git config --global --add url."${AUTH}".insteadOf "git@github.com:"
+          git config --global --add url."${AUTH}".insteadOf "git+ssh://git@github.com/"
+          git config --global --add url."${AUTH}".insteadOf "https://github.com/"
+
+      - name: Install root dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install cypress dependencies
+        run: npm --prefix cypress install --no-audit --no-fund
+
+      - name: Print selected suites
+        run: echo "$(node scripts/e2e/select-specs.mjs)"
+
+      - name: Run E2E gate on local devserver
+        run: bash scripts/e2e/run-gate.sh
+
+      - name: Upload cypress screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore

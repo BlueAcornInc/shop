@@ -148,6 +148,32 @@ Each package's `postinstall.js` copies its block files into this repo's `blocks/
 npm run lint
 ```
 
+## E2E Gate (Local Devserver)
+
+PR gate E2E runs are package-driven and execute against a local devserver.
+
+- Spec selection source: `package.json` dependencies
+- Always included: checkout funnel + theme shell smoke
+- Included when installed:
+	- `@blueacorninc/storefront-storelocator` -> store-locator smoke specs
+	- `@blueacorninc/storefront-yotpo` -> yotpo smoke specs
+
+Commands:
+
+```sh
+# Print selected spec list for current branch profile
+npm run e2e:select-specs
+
+# Start local server + run selected Cypress specs
+npm run e2e:gate
+```
+
+Optional override:
+
+```sh
+E2E_SPECS="cypress/src/tests/e2eTests/theme/verifyThemeShell.spec.js" npm run e2e:gate
+```
+
 ## Local development
 
 1. Create a new repository based on the `aem-boilerplate-commerce` template and add a mountpoint in the `fstab.yaml`.

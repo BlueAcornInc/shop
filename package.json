@@ -8,6 +8,10 @@
     "lint:css": "stylelint blocks/**/*.css styles/*.css",
     "lint": "npm run lint:js && npm run lint:css",
     "start": "aem up --addr 0.0.0.0 --print-index $AEM_PARAMS",
+    "e2e:local-smoke": "node scripts/e2e/run-local-smoke.mjs",
+    "e2e:local-gate": "bash scripts/e2e/run-local-smoke-gate.sh",
+    "e2e:select-specs": "node scripts/e2e/select-specs.mjs",
+    "e2e:gate": "bash scripts/e2e/run-gate.sh",
     "install:dropins": "node build.mjs && node postinstall.js",
     "-postinstall": "npm run install:dropins",
     "-postupdate": "npm run install:dropins"
