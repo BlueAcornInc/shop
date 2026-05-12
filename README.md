@@ -12,6 +12,48 @@ https://experienceleague.adobe.com/developer/commerce/storefront/
 - Live: https://main--shop--blueacorninc.aem.live/
 - GitHub: https://github.com/BlueAcornInc/shop
 
+## Branch Profiles and Deploy Targets
+
+`main` is the canonical theme branch and should stay aligned with upstream storefront/theme updates. Integration branches track `main` plus one app package profile. Pushing to each branch deploys to the matching EDS host.
+
+| Branch | Profile | Managed npm packages | Live URL | Update trigger |
+| - | - | - | - | - |
+| `main` | Theme baseline + core integrations | `@blueacorninc/storefront-yotpo`, `@blueacorninc/storefront-storelocator` | https://main--shop--blueacorninc.aem.live/ | normal PR merges + manual profile update workflow |
+| `yotpo` | Theme + yotpo only | `@blueacorninc/storefront-yotpo` | https://yotpo--shop--blueacorninc.aem.live/ | `repository_dispatch` type `yotpo-release` or manual workflow dispatch |
+| `store-locator` | Theme + store locator only | `@blueacorninc/storefront-storelocator` | https://store-locator--shop--blueacorninc.aem.live/ | `repository_dispatch` type `storelocator-release` or manual workflow dispatch |
+
+### Automation Workflow
+
+Use [`.github/workflows/integration-branch-update.yaml`](.github/workflows/integration-branch-update.yaml) to apply one profile, commit updated block/package content, and push the target branch (which triggers EDS deployment for that branch host).
+
+Expected repository dispatch events:
+
+- `yotpo-release` -> updates `yotpo` branch
+- `storelocator-release` -> updates `store-locator` branch
+
+Required secret:
+
+- `BAC_BOT_PAT` (repo + package read/write for branch push and GitHub Packages access)
+
+### Main Branch Upstream Sync
+
+If `upstream` is not configured yet:
+
+```sh
+git remote add upstream git@github.com:hlxsites/aem-boilerplate-commerce.git
+```
+
+Recommended sync flow:
+
+```sh
+git checkout main
+git fetch upstream
+git merge --ff-only upstream/main
+git push origin main
+```
+
+Then run the integration workflow manually for `yotpo` and `store-locator` so those branches pick up the refreshed theme baseline.
+
 ## Commerce as a Cloud Instances
 
 Currently pointed at a shared Adobe Commerce sandbox. The plan is to migrate to our own evergreen `na1-sandbox` instance once it's provisioned — not yet.
