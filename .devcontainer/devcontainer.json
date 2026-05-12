@@ -16,7 +16,7 @@
 	// on 3000 reaches the container's external interface but finds nothing
 	// listening (ECONNRESET on the Mac browser). Binding 0.0.0.0 makes aem up
 	// reachable through the forwarded port.
-	"postAttachCommand": "bash .devcontainer/setup.sh && npx aem up --addr 0.0.0.0 $AEM_PARAMS",
+	"postAttachCommand": "bash .devcontainer/setup.sh && npm run start",
 
 	"forwardPorts": [3000],
 	"customizations": {
@@ -31,14 +31,15 @@
 	// },
 
 	"remoteEnv": {
-		"AEM_PARAMS": "--url https://main--shop--blueacorninc.aem.live"
+		"AEM_PARAMS": "--url https://main--shop--blueacorninc.aem.live",
+		"SSH_AUTH_SOCK": "/tmp/ssh-agent.sock",
+		"SSH_AUTH": "/tmp/ssh-agent.sock",
+		"HOST_SSH_AUTH_SOCK": "${localEnv:SSH_AUTH_SOCK}"
 	},
 
 	"portsAttributes": {
 		"3000": {
 		  "label": "Adobe Commerce Storefront (HTTP)"
 		}
-
-
-
+	}
 }

@@ -1,0 +1,169 @@
+name: Integration Branch Update
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: "Integration profile to apply"
+        required: true
+        type: choice
+        options:
+          - main
+          - all
+          - yotpo
+          - store-locator
+      branch:
+        description: "Target branch (optional override)"
+        required: false
+        type: string
+  repository_dispatch:
+    types:
+      - yotpo-release
+      - storelocator-release
+      - all-release
+
+permissions:
+  contents: write
+
+jobs:
+  update-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve profile and branch
+        id: resolve
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          profile=""
+          target_branch=""
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            profile="${{ inputs.profile }}"
+            target_branch="${{ inputs.branch }}"
+          else
+            event_type="${{ github.event.action }}"
+            if [[ "$event_type" == "yotpo-release" ]]; then
+              profile="yotpo"
+            elif [[ "$event_type" == "storelocator-release" ]]; then
+              profile="store-locator"
+            elif [[ "$event_type" == "all-release" ]]; then
+              profile="all"
+            else
+              echo "Unsupported repository_dispatch type: $event_type" >&2
+              exit 1
+            fi
+            target_branch=""
+          fi
+
+          if [[ -z "$target_branch" ]]; then
+            case "$profile" in
+              main) target_branch="main" ;;
+              all) target_branch="all" ;;
+              yotpo) target_branch="yotpo" ;;
+              store-locator) target_branch="store-locator" ;;
+              *)
+                echo "Unsupported profile: $profile" >&2
+                exit 1
+                ;;
+            esac
+          fi
+
+          echo "profile=$profile" >> "$GITHUB_OUTPUT"
+          echo "target_branch=$target_branch" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Configure git auth for push and private package install
+        shell: bash
+        env:
+          BAC_BOT_PAT: ${{ secrets.BAC_BOT_PAT }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${BAC_BOT_PAT}" ]]; then
+            echo "BAC_BOT_PAT is required" >&2
+            exit 1
+          fi
+
+          auth_url="https://x-access-token:${BAC_BOT_PAT}@github.com/"
+          git config --global --add url."${auth_url}".insteadOf "https://github.com/"
+          git config --global --add url."${auth_url}".insteadOf "git@github.com:"
+          git config --global --add url."${auth_url}".insteadOf "ssh://git@github.com/"
+
+      - name: Reset working branch from origin/main
+        shell: bash
+        env:
+          TARGET_BRANCH: ${{ steps.resolve.outputs.target_branch }}
+        run: |
+          set -euo pipefail
+
+          git fetch origin main "$TARGET_BRANCH" || git fetch origin main
+          git checkout --force -B "$TARGET_BRANCH" origin/main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com
+          scope: "@blueacorninc"
+
+      - name: Install dependencies
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.BAC_BOT_PAT }}
+        run: npm install --no-audit --no-fund
+
+      - name: Apply integration profile
+        shell: bash
+        env:
+          PROFILE: ${{ steps.resolve.outputs.profile }}
+          NODE_AUTH_TOKEN: ${{ secrets.BAC_BOT_PAT }}
+        run: |
+          set -euo pipefail
+
+          case "$PROFILE" in
+            main)
+              npm uninstall --no-audit --no-fund @blueacorninc/storefront-yotpo @blueacorninc/storefront-storelocator || true
+              ;;
+            all)
+              npm install --no-audit --no-fund @blueacorninc/storefront-yotpo@latest @blueacorninc/storefront-storelocator@latest
+              ;;
+            yotpo)
+              npm install --no-audit --no-fund @blueacorninc/storefront-yotpo@latest
+              npm uninstall --no-audit --no-fund @blueacorninc/storefront-storelocator || true
+              ;;
+            store-locator)
+              npm install --no-audit --no-fund @blueacorninc/storefront-storelocator@latest
+              npm uninstall --no-audit --no-fund @blueacorninc/storefront-yotpo || true
+              ;;
+            *)
+              echo "Unknown profile: $PROFILE" >&2
+              exit 1
+              ;;
+          esac
+
+          npm run install:dropins
+
+      - name: Commit and push if changed
+        shell: bash
+        env:
+          TARGET_BRANCH: ${{ steps.resolve.outputs.target_branch }}
+          PROFILE: ${{ steps.resolve.outputs.profile }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add package.json blocks scripts
+          git commit -m "chore(integrations): update ${PROFILE} profile"
+          git push --force-with-lease origin "HEAD:${TARGET_BRANCH}"
