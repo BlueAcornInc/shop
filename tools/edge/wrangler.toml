@@ -1,0 +1,20 @@
+# Deployed to the Blue Acorn DevOps Cloudflare account.
+# Secrets (not here): BASIC_AUTH ("user:password"), set with
+#   wrangler secret put BASIC_AUTH
+name = "shop-edge"
+main = "worker.js"
+compatibility_date = "2025-11-24"
+
+routes = [
+  { pattern = "blueacornici.shop/*", zone_name = "blueacornici.shop" },
+  { pattern = "*.blueacornici.shop/*", zone_name = "blueacornici.shop" },
+]
+
+[vars]
+ZONE = "blueacornici.shop"
+SHOP_ROOT_ORIGIN = "main--shop--blueacorninc.aem.live"
+SHOP_ROOT_AUTH = "basic"
+SHOP_ADYEN_ORIGIN = "main--adyen--blueacorninc.aem.live"
+SHOP_ADYEN_STAGING_ORIGIN = "staging--adyen--blueacorninc.aem.live"
+SHOP_YOTPO_STAGING_ORIGIN = "yotpo-v2--shop--blueacorninc.aem.live"
+SHOP_BAZAARVOICE_STAGING_ORIGIN = "bazaarvoice-v2--shop--blueacorninc.aem.live"
