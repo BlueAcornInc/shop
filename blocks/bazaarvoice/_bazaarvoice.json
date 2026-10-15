@@ -1,0 +1,21 @@
+{
+  "definitions": [
+    {
+      "title": "Bazaarvoice",
+      "id": "bazaarvoice",
+      "model": "bazaarvoice",
+      "plugins": {
+        "da": {
+          "type": "block"
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "bazaarvoice",
+      "fields": []
+    }
+  ],
+  "filters": []
+}

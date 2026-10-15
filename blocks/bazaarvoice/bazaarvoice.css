@@ -1,4 +1,7 @@
-.product-recommendations-container {
-  /* this section is hidden/blank if/when we decide to get yotpo support to enable recommendations */
-  display: none;
+.bazaarvoice > [data-bv-show] + [data-bv-show] {
+  margin-top: 40px;
+}
+
+.bazaarvoice-summary {
+  margin: 8px 0;
 }
