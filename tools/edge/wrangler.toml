@@ -5,6 +5,9 @@ name = "shop-edge"
 main = "worker.js"
 compatibility_date = "2025-11-24"
 
+# apps.blueacornici.shop/* and staging.blueacornici.shop/* also have routes
+# with NO worker (set via the API; wrangler can't express them) so GitHub Pages
+# and the old sandbox CNAME bypass this worker.
 routes = [
   { pattern = "blueacornici.shop/*", zone_name = "blueacornici.shop" },
   { pattern = "*.blueacornici.shop/*", zone_name = "blueacornici.shop" },
