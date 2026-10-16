@@ -1,6 +1,8 @@
 # Deployed to the Blue Acorn DevOps Cloudflare account.
-# Secrets (not here): BASIC_AUTH ("user:password"), set with
-#   wrangler secret put BASIC_AUTH
+# Secrets (not here), set with `wrangler secret put <NAME>`:
+#   BASIC_AUTH        "user:password" for labels with SHOP_<LABEL>_AUTH = "basic"
+#   AEM_TOKEN_<SITE>  EDS site token (hlx_...) per site, e.g. AEM_TOKEN_SHOP,
+#                     AEM_TOKEN_ADYEN; required once EDS site auth is on
 name = "shop-edge"
 main = "worker.js"
 compatibility_date = "2025-11-24"
