@@ -17,9 +17,10 @@ routes = [
 
 [vars]
 ZONE = "blueacornici.shop"
+# Every host here is public (prod). Staging is the .aem.page preview of a
+# branch, e.g. https://yotpo-v2--shop--blueacorninc.aem.page/, behind EDS site
+# authentication (Sidekick login, *@blueacornici.com / *@groupinfosys.com).
+# Don't add *-staging labels here: anything this worker serves bypasses that.
 SHOP_ROOT_ORIGIN = "main--shop--blueacorninc.aem.live"
-SHOP_ROOT_AUTH = "basic"
 SHOP_ADYEN_ORIGIN = "main--adyen--blueacorninc.aem.live"
 SHOP_ADYEN_STAGING_ORIGIN = "staging--adyen--blueacorninc.aem.live"
-SHOP_YOTPO_STAGING_ORIGIN = "yotpo-v2--shop--blueacorninc.aem.live"
-SHOP_BAZAARVOICE_STAGING_ORIGIN = "bazaarvoice-v2--shop--blueacorninc.aem.live"

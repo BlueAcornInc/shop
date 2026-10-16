@@ -58,7 +58,7 @@ This token can be fetched from the valuei n the first step above. Keep in mind, 
 
 ```bash
 curl https://main--shop--blueacorninc.aem.live \
-  -H 'authorization: token hlx_Z5sf_WEE0HDkJqnCm1pa7-r5xLxnRMnZhEcGZjDhQUg'
+  -H 'authorization: token $SITE_TOKEN'
 ```
 Remove the 401 auth...
 
