@@ -86,3 +86,7 @@ scripts/scripts.js
 scripts/theme-config.js
 scripts/theme.js
 scripts/wishlist/
+
+# Cloudflare worker (tools/edge) runs on workerd, not in the browser: the
+# constant-time auth compare needs bitwise ops and it has its own node tests.
+tools/edge/

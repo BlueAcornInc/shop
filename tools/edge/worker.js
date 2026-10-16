@@ -38,6 +38,9 @@ export const labelFor = (hostname, zone) => {
   return sub.toUpperCase().replace(/-/g, '_');
 };
 
+/** Secret-name suffix for an origin's EDS site: yotpo-v2--shop--org -> SHOP. */
+export const siteFor = (origin) => origin.split('--')[1].toUpperCase().replace(/-/g, '_');
+
 const unauthorized = () => new Response('Unauthorized', {
   status: 401,
   headers: { 'WWW-Authenticate': 'Basic realm="Restricted"' },
@@ -128,8 +131,11 @@ export const handleRequest = async (request, env) => {
   if (env.PUSH_INVALIDATION) {
     req.headers.set('x-push-invalidation', 'enabled');
   }
-  if (env.ORIGIN_AUTHENTICATION) {
-    req.headers.set('authorization', `token ${env.ORIGIN_AUTHENTICATION}`);
+  // EDS site authentication: each site has its own token, stored as the
+  // AEM_TOKEN_<SITE> secret (site name from ref--site--org, uppercased).
+  const siteToken = env[`AEM_TOKEN_${siteFor(origin)}`];
+  if (siteToken) {
+    req.headers.set('authorization', `token ${siteToken}`);
   }
   let resp = await fetch(req, {
     cf: {

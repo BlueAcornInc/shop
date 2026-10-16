@@ -65,3 +65,10 @@ test('Apple Pay association served without auth', async () => {
   assert.equal(r.status, 200);
   assert.match(await r.text(), /^7B22/);
 });
+
+test('sends the per-site EDS token to the origin', async () => {
+  const withTokens = { ...env, AEM_TOKEN_SHOP: 'hlx_shop', AEM_TOKEN_ADYEN: 'hlx_adyen' };
+  await handleRequest(new Request('https://yotpo-staging.blueacornici.shop/', { headers: { authorization: 'Basic abc' } }), withTokens);
+  assert.equal(fetched.headers.get('authorization'), 'token hlx_shop');
+  assert.equal((await import('./worker.js')).siteFor('staging--adyen--blueacorninc.aem.live'), 'ADYEN');
+});
