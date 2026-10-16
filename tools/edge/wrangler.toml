@@ -1,0 +1,26 @@
+# Deployed to the Blue Acorn DevOps Cloudflare account.
+# Secrets (not here), set with `wrangler secret put <NAME>`:
+#   BASIC_AUTH        "user:password" for labels with SHOP_<LABEL>_AUTH = "basic"
+#   AEM_TOKEN_<SITE>  EDS site token (hlx_...) per site, e.g. AEM_TOKEN_SHOP,
+#                     AEM_TOKEN_ADYEN; required once EDS site auth is on
+name = "shop-edge"
+main = "worker.js"
+compatibility_date = "2025-11-24"
+
+# apps.blueacornici.shop/* and staging.blueacornici.shop/* also have routes
+# with NO worker (set via the API; wrangler can't express them) so GitHub Pages
+# and the old sandbox CNAME bypass this worker.
+routes = [
+  { pattern = "blueacornici.shop/*", zone_name = "blueacornici.shop" },
+  { pattern = "*.blueacornici.shop/*", zone_name = "blueacornici.shop" },
+]
+
+[vars]
+ZONE = "blueacornici.shop"
+# Every host here is public (prod). Staging is the .aem.page preview of a
+# branch, e.g. https://yotpo-v2--shop--blueacorninc.aem.page/, behind EDS site
+# authentication (Sidekick login, *@blueacornici.com / *@groupinfosys.com).
+# Don't add *-staging labels here: anything this worker serves bypasses that.
+SHOP_ROOT_ORIGIN = "main--shop--blueacorninc.aem.live"
+SHOP_ADYEN_ORIGIN = "main--adyen--blueacorninc.aem.live"
+SHOP_ADYEN_STAGING_ORIGIN = "staging--adyen--blueacorninc.aem.live"

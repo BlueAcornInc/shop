@@ -1,81 +1,52 @@
-
 # Authentication
 
-This guide explains how to manipulate the authentication scheme so we can protect domains before they are ready. These pages could potentially have NDA-breaking content so we want to be sure to protect it! Follows [this guide](https://www.aem.live/docs/authentication-setup-site). 
+The `shop` site uses [EDS site authentication](https://www.aem.live/docs/authentication-setup-site),
+so the raw `*.aem.page` and `*.aem.live` hosts require a Sidekick login. Production is public
+through the `blueacornici.shop` Cloudflare worker (see [cloudflare.md](./cloudflare.md)).
 
-## How This Works
+| Where | Who can see it |
+|---|---|
+| `blueacornici.shop`, `<label>.blueacornici.shop` | Everyone (prod) |
+| `<branch>--shop--blueacorninc.aem.page` (staging / preview) | `*@blueacornici.com`, `*@groupinfosys.com` via Sidekick |
+| `<branch>--shop--blueacorninc.aem.live` | Same, plus the worker's site token |
 
-Check out the [Config Service Setup](./Config_Service_Setup.md) guide to use the Config Service, and walk through the guide below for new sites. 
+Staging for an app is its branch's preview, e.g. `https://yotpo-v2--shop--blueacorninc.aem.page/`.
+`scripts/configs.js` loads `configs-stage` on any `.aem.page` host. Don't add `*-staging` labels
+to the worker: anything it serves is public, since it sends the site token.
 
-Next, ensure you have the [AEM Sidekick Chrome Extension](https://chromewebstore.google.com/detail/aem-sidekick/igkmdomcgoebiipaifhmpfjhbjccggml?pli=1) which presents the login page and makes it all work.
+## Current config
 
-Now, when you go to am aem.live or aem.page url where this is enabled, you'll be presented with a login screen if you have the sidekick enabled. Otherwise, you'll simply see a plaintext error.
-
-
-## Protecting a Site
-
-This will use login providers like Google and Microsoft to ensure rights to access. Currently configured to allow groupinfosys.com and adobe.com users to access.
-
-First, generate the secret key:
-
-```bash
-curl -i --header "Cookie: auth_token=$AUTH_TOKEN" https://admin.hlx.page/config/blueacorninc/sites/shop/secrets.json -X POST
+```json
+{
+  "site": {
+    "allow": ["*@blueacornici.com", "*@groupinfosys.com"],
+    "secretId": ["<id of the token the worker uses>"]
+  }
+}
 ```
 
-Now set up the authentication scheme...
+The Commerce picker Sidekick plugin loads from `https://blueacornici.shop/tools/picker/...` so it
+works inside the DA editor without the aem.live login.
+
+## Changing it
+
+You need an `admin.hlx.page` login (`AUTH_TOKEN` is the `auth_token` cookie).
 
 ```bash
-curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST https://admin.hlx.page/config/blueacorninc/sites/shop-stripe/access/site.json \
-  -H 'content-type: application/json' \
-  --data '{
-    "admin": ["*@groupinfosys.com", "*@adobe.com"]
-  }'
+# read
+curl -s -H "x-auth-token: $AUTH_TOKEN" https://admin.hlx.page/config/blueacorninc/sites/shop/access.json
+
+# set (overwrites the whole site object)
+curl -s -X POST -H "x-auth-token: $AUTH_TOKEN" -H 'content-type: application/json' \
+  https://admin.hlx.page/config/blueacorninc/sites/shop/access/site.json \
+  --data '{"allow": ["*@blueacornici.com", "*@groupinfosys.com"], "secretId": ["<id>"]}'
 ```
 
-## Go-Live
+### Rotating the worker's site token
 
-Let's also roll it back, so we can go live!!
+1. `POST .../sites/shop/secrets.json` (empty body) returns `{ id, value }`. Never commit `value`.
+2. Store `value` as the worker secret `AEM_TOKEN_SHOP` (`wrangler secret put AEM_TOKEN_SHOP`).
+3. Add the new `id` to `secretId`, check `blueacornici.shop`, then remove the old id and
+   `DELETE .../sites/shop/secrets/<old-id>.json`.
 
-```bash
-curl -i --header "Cookie: auth_token=$AUTH_TOKEN" -X POST https://admin.hlx.page/config/blueacorninc/sites/shop-stripe/access/site.json   -H 'content-type: application/json' \
-  --data '{
-
-  }'
-```
-
-curl -i --header "Cookie: auth_token=$AUTH_TOKEN" \
-     --header "Content-Type: application/json" \
-     -X POST \
-     --data '{"public": true}' \
-     https://admin.hlx.page/config/blueacorninc/sites/shop-stripe/access/site.json
-
-
-## Securing The Endpoint
-
-Not sure, but may be desirable to only access this from https://blueacornici.shop, in this scheme we would setup a Cloudflare Cloud Worker that uses a auth token to fetch the request. 
-
-This token can be fetched from the valuei n the first step above. Keep in mind, generating a new token kills the old ones!
-
-```bash
-curl https://main--shop--blueacorninc.aem.live \
-  -H 'authorization: token hlx_Z5sf_WEE0HDkJqnCm1pa7-r5xLxnRMnZhEcGZjDhQUg'
-```
-Remove the 401 auth...
-
-```bash
-curl -i --header "Cookie: auth_token=$AUTH_TOKEN" \
-     -X DELETE \
-     https://admin.hlx.page/config/blueacorninc/sites/shop-stripe/access/site.json
-```
-
-
-Let's add some admins...
-
-```bash
-curl -i --header "Cookie: auth_token=$AUTH_TOKEN" \
-     --header "Content-Type: application/json" \
-     -X POST \
-     --data '{"admins": ["doug.hatcher@blueacornici.com", "daniel.zaretsky@blueacornici.com", "sam.davis-castro@blueacornici.com"]}' \
-     https://admin.hlx.page/config/blueacorninc/sites/shop-stripe/access/site.json
-```
-
+A token pasted into an earlier version of this file was revoked on 2026-10-16.

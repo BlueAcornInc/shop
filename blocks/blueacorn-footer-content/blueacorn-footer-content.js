@@ -15,7 +15,7 @@ export default async function decorate(block) {
   footerLinksBlock.className = 'footer-links';
   footerSocialBlock.className = 'footer-social';
 
-    footerLogoBlock.innerHTML = `
+  footerLogoBlock.innerHTML = `
     <a href="/" class="logo" aria-label="Go to the homepage"><img src="/images/blueacorn.png" class="footer-logo" /></a>
   `;
 
